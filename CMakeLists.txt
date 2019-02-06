@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.5 FATAL_ERROR)
 project(gpd)
 set(CMAKE_BUILD_TYPE Debug)
 
@@ -7,7 +7,7 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 
 # PCL
 #find_package(PCL 1.9 REQUIRED)
-find_package(PCL 1.8 REQUIRED)
+find_package(PCL 1.7 REQUIRED)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
@@ -27,7 +27,7 @@ set(CMAKE_CXX_FLAGS "-O3 -fopenmp -fPIC -Wno-deprecated -Wenum-compare -Wno-igno
 include_directories(include ${PCL_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
 
 # Classifier depends on what libraries are installed.
-option(USE_OPENVINO "use classifier based on OpenVINO toolkit" OFF)
+option(USE_OPENVINO "use classifier based on OpenVINO toolkit" ON)
 option(USE_CAFFE "use classifier based on Caffe framework" OFF)
 option(USE_OPENCV "use classifier based on OpenCV framework" OFF)
 if(USE_OPENVINO STREQUAL "ON")
