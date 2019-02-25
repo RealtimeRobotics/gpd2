@@ -48,12 +48,11 @@ typedef pcl::PointCloud<pcl::PointXYZRGBA> PointCloudRGB;
 typedef boost::variate_generator<boost::mt19937, boost::normal_distribution<>>
     Gaussian;
 
-/** SequentialImportanceSampling class
+/**
  *
- * \brief Use sequential importance sampling to focus the sampling of grasp
- * candidates.
+ * \brief Grasp pose detection with the Cross Entropy Method.
  *
- * This class uses sequential importance sampling to focus the grasp candidate
+ * This class uses the Cross Entropy Method to focus the grasp candidate
  * generation on areas of the point cloud where more grasp candidates are
  * expected to be found.
  *
@@ -122,14 +121,13 @@ class SequentialImportanceSampling {
   std::unique_ptr<Clustering> clustering_;
 
   // sequential importance sampling parameters
-  int num_iterations_;        ///< number of iterations of Sequential Importance
-                              /// Sampling
+  int num_iterations_;        ///< number of iterations of CEM
   int num_samples_;           ///< number of samples to use in each iteration
   int num_init_samples_;      ///< number of initial samples
   double prob_rand_samples_;  ///< probability of random samples
-  double radius_;             ///< radius
+  double radius_;             ///< standard deviation of Gaussian distribution
   int sampling_method_;  ///< what sampling method is used (sum, max, weighted)
-  double min_score_;
+  double min_score_;     ///< minimum score to consider a candidate as a grasp
 
   // visualization parameters
   bool visualize_rounds_;  ///< if all iterations are visualized
@@ -138,10 +136,12 @@ class SequentialImportanceSampling {
   bool visualize_results_;  ///< if the final results are visualized
 
   // grasp filtering parameters
-  bool filter_grasps_;  ///< if grasps are filtered based on the robot's
-                        /// workspace
   std::vector<double> workspace_;         ///< the robot's workspace
   std::vector<double> workspace_grasps_;  ///< the robot's workspace
+
+  bool filter_approach_direction_;
+  Eigen::Vector3d direction_;
+  double thresh_rad_;
 
   int num_threads_;  ///< number of CPU threads used in grasp detection
 };

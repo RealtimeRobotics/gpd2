@@ -9,21 +9,26 @@ const Eigen::Vector3d HandSet::AXES[3] = {Eigen::Vector3d::UnitX(),
 
 const bool HandSet::MEASURE_TIME = false;
 
-const double MAX = (double)(((214013) >> 16) & 0x7FFF);
-
 int HandSet::seed_ = 0;
 
-HandSet::HandSet() {
-  sample_.setZero();
-  hands_.resize(0);
-  is_valid_.resize(0);
-  angles_.resize(0);
-}
+// HandSet::HandSet() {
+//  sample_.setZero();
+//  hands_.resize(0);
+//  is_valid_.resize(0);
+//  angles_.resize(0);
+//  deepen_hand_ = true;
+//}
 
 HandSet::HandSet(const HandGeometry &hand_geometry,
                  const Eigen::VectorXd &angles,
-                 const std::vector<int> &hand_axes)
-    : hand_geometry_(hand_geometry), angles_(angles), hand_axes_(hand_axes) {
+                 const std::vector<int> &hand_axes, int num_finger_placements,
+                 bool deepen_hand, Antipodal &antipodal)
+    : hand_geometry_(hand_geometry),
+      angles_(angles),
+      hand_axes_(hand_axes),
+      num_finger_placements_(num_finger_placements),
+      deepen_hand_(deepen_hand),
+      antipodal_(antipodal) {
   sample_.setZero();
   hands_.resize(0);
   is_valid_.resize(0);
@@ -55,7 +60,8 @@ void HandSet::evalHands(const util::PointList &point_list,
 
   // This object is used to evaluate the finger placement.
   FingerHand finger_hand(hand_geometry_.finger_width_,
-                         hand_geometry_.outer_diameter_, hand_geometry_.depth_);
+                         hand_geometry_.outer_diameter_, hand_geometry_.depth_,
+                         num_finger_placements_);
 
   // Set the forward and lateral axis of the robot hand frame (closing direction
   // and grasp approach direction).
@@ -91,11 +97,15 @@ void HandSet::evalHands(const util::PointList &point_list,
 
     // Check that there is at least one feasible 2-finger placement.
     if (finger_hand.getHand().any()) {
-      // Try to move the hand as deep as possible onto the object.
-      int finger_idx = finger_hand.deepenHand(point_list_cropped.getPoints(),
-                                              hand_geometry_.init_bite_,
-                                              hand_geometry_.depth_);
-
+      int finger_idx;
+      if (deepen_hand_) {
+        // Try to move the hand as deep as possible onto the object.
+        finger_idx = finger_hand.deepenHand(point_list_cropped.getPoints(),
+                                            hand_geometry_.init_bite_,
+                                            hand_geometry_.depth_);
+      } else {
+        finger_idx = finger_hand.chooseMiddleHand();
+      }
       // Calculate points in the closing region of the hand.
       std::vector<int> indices_closing =
           finger_hand.computePointsInClosingRegion(
@@ -228,14 +238,13 @@ void HandSet::calculateVoxelizedShadowVectorized(
             .cast<int>());
   }
 
-  if (MEASURE_TIME)
+  if (MEASURE_TIME) {
     printf(
         "Shadow (1 camera) calculation. Runtime: %.3f, #points: %d, "
         "num_shadow_points: %d, #shadow: %d, max #shadow: %d\n",
         omp_get_wtime() - t0_set, (int)points.cols(), num_shadow_points,
         (int)shadow_set.size(), n);
-  //    std::cout << "Calculated shadow for 1 camera. Runtime: " <<
-  //    omp_get_wtime() - t0_set << ", #points: " << n << "\n";
+  }
 }
 
 void HandSet::modifyCandidate(Hand &hand, const Eigen::Vector3d &sample,
@@ -281,10 +290,9 @@ Hand HandSet::createHypothesis(const Eigen::Vector3d &sample,
 
 void HandSet::labelHypothesis(const util::PointList &point_list,
                               const FingerHand &finger_hand, Hand &hand) const {
-  Antipodal antipodal;
   int label =
-      antipodal.evaluateGrasp(point_list, 0.003, finger_hand.getLateralAxis(),
-                              finger_hand.getForwardAxis(), 2);
+      antipodal_.evaluateGrasp(point_list, 0.003, finger_hand.getLateralAxis(),
+                               finger_hand.getForwardAxis(), 2);
   hand.setHalfAntipodal(label == Antipodal::HALF_GRASP ||
                         label == Antipodal::FULL_GRASP);
   hand.setFullAntipodal(label == Antipodal::FULL_GRASP);

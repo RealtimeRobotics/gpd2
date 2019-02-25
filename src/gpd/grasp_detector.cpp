@@ -24,24 +24,24 @@ GraspDetector::GraspDetector(const std::string& config_filename) {
   plot_candidates_ = config_file.getValueOfKey<bool>("plot_candidates", false);
   plot_filtered_candidates_ =
       config_file.getValueOfKey<bool>("plot_filtered_candidates", false);
-  plot_volumes_ = config_file.getValueOfKey<bool>("plot_volumes", false);
   plot_valid_grasps_ =
       config_file.getValueOfKey<bool>("plot_valid_grasps", false);
   plot_clustered_grasps_ =
       config_file.getValueOfKey<bool>("plot_clustered_grasps", false);
   plot_selected_grasps_ =
       config_file.getValueOfKey<bool>("plot_selected_grasps", false);
-  std::cout << "============ PLOTTING ========================\n";
-  std::cout << "plot_normals: " << plot_normals_ << "\n";
-  std::cout << "plot_samples: " << plot_samples_ << "\n";
-  std::cout << "plot_candidates: " << plot_candidates_ << "\n";
-  std::cout << "plot_filtered_candidates: " << plot_filtered_candidates_
-            << "\n";
-  std::cout << "plot_volumes_: " << plot_volumes_ << "\n";
-  std::cout << "plot_valid_grasps: " << plot_valid_grasps_ << "\n";
-  std::cout << "plot_clustered_grasps: " << plot_clustered_grasps_ << "\n";
-  std::cout << "plot_selected_grasps: " << plot_selected_grasps_ << "\n";
-  std::cout << "==============================================\n";
+  printf("============ PLOTTING ========================\n");
+  printf("plot_normals: %s\n", plot_normals_ ? "true" : "false");
+  printf("plot_samples %s\n", plot_samples_ ? "true" : "false");
+  printf("plot_candidates: %s\n", plot_candidates_ ? "true" : "false");
+  printf("plot_filtered_candidates: %s\n",
+         plot_filtered_candidates_ ? "true" : "false");
+  printf("plot_valid_grasps: %s\n", plot_valid_grasps_ ? "true" : "false");
+  printf("plot_clustered_grasps: %s\n",
+         plot_clustered_grasps_ ? "true" : "false");
+  printf("plot_selected_grasps: %s\n",
+         plot_selected_grasps_ ? "true" : "false");
+  printf("==============================================\n");
 
   // Create object to generate grasp candidates.
   candidate::CandidatesGenerator::Parameters generator_params;
@@ -57,6 +57,7 @@ GraspDetector::GraspDetector(const std::string& config_filename) {
       config_file.getValueOfKey<bool>("voxelize", true);
   generator_params.workspace_ =
       config_file.getValueOfKeyAsStdVectorDouble("workspace", "-1 1 -1 1 -1 1");
+
   candidate::HandSearch::Parameters hand_search_params;
   hand_search_params.hand_geometry_ = hand_geom;
   hand_search_params.nn_radius_frames_ =
@@ -67,25 +68,41 @@ GraspDetector::GraspDetector(const std::string& config_filename) {
       config_file.getValueOfKey<int>("num_threads", 1);
   hand_search_params.num_orientations_ =
       config_file.getValueOfKey<int>("num_orientations", 8);
+  hand_search_params.num_finger_placements_ =
+      config_file.getValueOfKey<int>("num_finger_placements", 10);
+  hand_search_params.deepen_hand_ =
+      config_file.getValueOfKey<bool>("deepen_hand", true);
   hand_search_params.hand_axes_ =
       config_file.getValueOfKeyAsStdVectorInt("hand_axes", "2");
+  hand_search_params.friction_coeff_ =
+      config_file.getValueOfKey<double>("friction_coeff", 20.0);
+  hand_search_params.min_viable_ =
+      config_file.getValueOfKey<int>("min_viable", 6);
   candidates_generator_ = std::make_unique<candidate::CandidatesGenerator>(
       generator_params, hand_search_params);
 
-  std::cout << "============ CLOUD PREPROCESSING =============\n";
-  std::cout << "voxelize: " << generator_params.voxelize_ << "\n";
-  std::cout << "remove_outliers: "
-            << generator_params.remove_statistical_outliers_ << "\n";
+  printf("============ CLOUD PREPROCESSING =============\n");
+  printf("voxelize: %s\n", generator_params.voxelize_ ? "true" : "false");
+  printf("remove_outliers: %s\n",
+         generator_params.remove_statistical_outliers_ ? "true" : "false");
   printStdVector(generator_params.workspace_, "workspace");
+  printf("sample_above_plane: %s\n",
+         generator_params.sample_above_plane_ ? "true" : "false");
+  printf("==============================================\n");
 
-  std::cout << "============ CANDIDATE GENERATION ============\n";
-  std::cout << "num_samples: " << hand_search_params.num_samples_ << "\n";
-  std::cout << "num_threads: " << hand_search_params.num_threads_ << "\n";
-  std::cout << "nn_radius: " << hand_search_params.nn_radius_frames_ << "\n";
+  printf("============ CANDIDATE GENERATION ============\n");
+  printf("num_samples: %d\n", hand_search_params.num_samples_);
+  printf("num_threads: %d\n", hand_search_params.num_threads_);
+  printf("nn_radius: %3.2f\n", hand_search_params.nn_radius_frames_);
   printStdVector(hand_search_params.hand_axes_, "hand axes");
-  std::cout << "num_orientations: " << hand_search_params.num_orientations_
-            << "\n";
-  std::cout << "==============================================\n";
+  printf("num_orientations: %d\n", hand_search_params.num_orientations_);
+  printf("num_finger_placements: %d\n",
+         hand_search_params.num_finger_placements_);
+  printf("deepen_hand: %s\n",
+         hand_search_params.deepen_hand_ ? "true" : "false");
+  printf("friction_coeff: %3.2f\n", hand_search_params.friction_coeff_);
+  printf("min_viable: %d\n", hand_search_params.min_viable_);
+  printf("==============================================\n");
 
   // TODO: Set the camera position.
   //  Eigen::Matrix3Xd view_points(3,1);
@@ -111,11 +128,11 @@ GraspDetector::GraspDetector(const std::string& config_filename) {
         model_file, weights_file, static_cast<net::Classifier::Device>(device),
         batch_size);
     min_score_ = config_file.getValueOfKey<int>("min_score", 0);
-    std::cout << "============ CLASSIFIER ======================\n";
-    std::cout << "model_file: " << model_file << "\n";
-    std::cout << "weights_file: " << weights_file << "\n";
-    std::cout << "batch_size: " << batch_size << "\n";
-    std::cout << "==============================================\n";
+    printf("============ CLASSIFIER ======================\n");
+    printf("model_file: %s\n", model_file.c_str());
+    printf("weights_file: %s\n", weights_file.c_str());
+    printf("batch_size: %d\n", batch_size);
+    printf("==============================================\n");
   }
 
   // Read additional grasp image creation parameters.
@@ -128,34 +145,32 @@ GraspDetector::GraspDetector(const std::string& config_filename) {
       image_geom, hand_search_params.num_threads_,
       hand_search_params.num_orientations_, false, remove_plane);
 
-  // Read grasp filtering parameters.
+  // Read grasp filtering parameters based on robot workspace and gripper width.
   workspace_grasps_ = config_file.getValueOfKeyAsStdVectorDouble(
       "workspace_grasps", "-1 1 -1 1 -1 1");
   min_aperture_ = config_file.getValueOfKey<double>("min_aperture", 0.0);
-  max_aperture_ = config_file.getValueOfKey<double>("max_aperture", 0.85);
-  std::cout << "============ CANDIDATE FILTERING =============\n";
+  max_aperture_ = config_file.getValueOfKey<double>("max_aperture", 0.085);
+  printf("============ CANDIDATE FILTERING =============\n");
   printStdVector(workspace_grasps_, "candidate_workspace");
-  std::cout << "min_aperture: " << min_aperture_ << "\n";
-  std::cout << "max_aperture: " << max_aperture_ << "\n";
-  std::cout << "==============================================\n";
+  printf("min_aperture: %3.4f\n", min_aperture_);
+  printf("max_aperture: %3.4f\n", max_aperture_);
+  printf("==============================================\n");
 
-  // Read grasp filtering parameters for side grasps that are too close to the
-  // table plane.
-  filter_table_side_grasps_ =
-      config_file.getValueOfKey<bool>("filter_table_side_grasps", false);
-  vert_axis_ =
-      config_file.getValueOfKeyAsStdVectorDouble("vertical_axis", "0 0 1");
-  angle_thresh_ = config_file.getValueOfKey<double>("angle_thresh", 0.1);
-  table_height_ = config_file.getValueOfKey<double>("table_height", 0.5);
-  table_thresh_ = config_file.getValueOfKey<double>("table_thresh_", 0.05);
+  // Read grasp filtering parameters based on approach direction.
+  filter_approach_direction_ =
+      config_file.getValueOfKey<bool>("filter_approach_direction", false);
+  std::vector<double> approach =
+      config_file.getValueOfKeyAsStdVectorDouble("direction", "1 0 0");
+  direction_ << approach[0], approach[1], approach[2];
+  thresh_rad_ = config_file.getValueOfKey<double>("thresh_rad", 2.3);
 
   // Read clustering parameters.
   int min_inliers = config_file.getValueOfKey<int>("min_inliers", 1);
   clustering_ = std::make_unique<Clustering>(min_inliers);
   cluster_grasps_ = min_inliers > 0 ? true : false;
-  std::cout << "============ CLUSTERING ======================\n";
-  std::cout << "min_inliers: " << min_inliers << "\n";
-  std::cout << "==============================================\n\n";
+  printf("============ CLUSTERING ======================\n");
+  printf("min_inliers: %d\n", min_inliers);
+  printf("==============================================\n\n");
 
   // Read grasp selection parameters.
   num_selected_ = config_file.getValueOfKey<int>("num_selected", 100);
@@ -214,16 +229,15 @@ std::vector<std::unique_ptr<candidate::Hand>> GraspDetector::detectGrasps(
   std::vector<std::unique_ptr<candidate::HandSet>> hand_set_list_filtered =
       filterGraspsWorkspace(hand_set_list, workspace_grasps_);
   if (plot_filtered_candidates_) {
-    plotter_->plotFingers3D(hands_out, cloud.getCloudOriginal(),
+    plotter_->plotFingers3D(hand_set_list_filtered, cloud.getCloudOriginal(),
                             "Filtered Grasps (Aperture, Workspace)", hand_geom);
   }
-  if (filter_table_side_grasps_) {
+  if (filter_approach_direction_) {
     hand_set_list_filtered =
-        filterSideGraspsCloseToTable(hand_set_list_filtered);
+        filterGraspsDirection(hand_set_list_filtered, direction_, thresh_rad_);
     if (plot_filtered_candidates_) {
-      plotter_->plotFingers3D(hands_out, cloud.getCloudOriginal(),
-                              "Filtered Grasps (Aperture, Workspace)",
-                              hand_geom);
+      plotter_->plotFingers3D(hand_set_list_filtered, cloud.getCloudOriginal(),
+                              "Filtered Grasps (Approach)", hand_geom);
     }
   }
   double t_filter = omp_get_wtime() - t0_filter;
@@ -362,7 +376,7 @@ GraspDetector::filterGraspsWorkspace(
     }
   }
 
-  printf("Number of grasps within workspace and gripper width: %d\n",
+  printf("Number of grasp candidates within workspace and gripper width: %d\n",
          remaining);
 
   return hand_set_list_out;
@@ -391,14 +405,11 @@ std::vector<std::unique_ptr<candidate::Hand>> GraspDetector::selectGrasps(
 }
 
 std::vector<std::unique_ptr<candidate::HandSet>>
-GraspDetector::filterSideGraspsCloseToTable(
-    std::vector<std::unique_ptr<candidate::HandSet>>& hand_set_list) {
-  const double APPROACH_LENGTH = 0.05;
-
-  int remaining = 0;
+GraspDetector::filterGraspsDirection(
+    std::vector<std::unique_ptr<candidate::HandSet>>& hand_set_list,
+    const Eigen::Vector3d& direction, const double thresh_rad) {
   std::vector<std::unique_ptr<candidate::HandSet>> hand_set_list_out;
-  Eigen::Vector3d vert_axis_vec;
-  vert_axis_vec << vert_axis_[0], vert_axis_[1], vert_axis_[2];
+  int remaining = 0;
 
   for (int i = 0; i < hand_set_list.size(); i++) {
     const std::vector<std::unique_ptr<candidate::Hand>>& hands =
@@ -408,17 +419,10 @@ GraspDetector::filterSideGraspsCloseToTable(
 
     for (int j = 0; j < hands.size(); j++) {
       if (is_valid(j)) {
-        double angle =
-            fabs(vert_axis_vec.transpose() * hands[i]->getApproach());
-        double dist = fabs((hands[i]->getPosition() -
-                            APPROACH_LENGTH * hands[i]->getApproach())(2)) -
-                      table_height_;
-
-        // This is a side grasps that is too close to the table.
-        if (angle > angle_thresh_ && dist < table_thresh_) {
+        double angle = acos(direction.transpose() * hands[j]->getApproach());
+        if (angle > thresh_rad) {
           is_valid(j) = false;
         } else {
-          is_valid(j) = true;
           remaining++;
         }
       }
@@ -430,7 +434,7 @@ GraspDetector::filterSideGraspsCloseToTable(
     }
   }
 
-  printf("Number of grasps that are not too close to the table: %d\n",
+  printf("Number of grasp candidates with correct approach direction: %d\n",
          remaining);
 
   return hand_set_list_out;
@@ -480,16 +484,15 @@ bool GraspDetector::createGraspImages(
   std::vector<std::unique_ptr<candidate::HandSet>> hand_set_list_filtered =
       filterGraspsWorkspace(hand_set_list, workspace_grasps_);
   if (plot_filtered_candidates_) {
-    plotter_->plotFingers3D(hands_out, cloud.getCloudOriginal(),
+    plotter_->plotFingers3D(hand_set_list_filtered, cloud.getCloudOriginal(),
                             "Filtered Grasps (Aperture, Workspace)", hand_geom);
   }
-  if (filter_table_side_grasps_) {
+  if (filter_approach_direction_) {
     hand_set_list_filtered =
-        filterSideGraspsCloseToTable(hand_set_list_filtered);
+        filterGraspsDirection(hand_set_list_filtered, direction_, thresh_rad_);
     if (plot_filtered_candidates_) {
-      plotter_->plotFingers3D(hands_out, cloud.getCloudOriginal(),
-                              "Filtered Grasps (Aperture, Workspace)",
-                              hand_geom);
+      plotter_->plotFingers3D(hand_set_list_filtered, cloud.getCloudOriginal(),
+                              "Filtered Grasps (Approach)", hand_geom);
     }
   }
 

@@ -8,46 +8,27 @@ const int HandSearch::ROTATION_AXIS_BINORMAL = 1;
 const int HandSearch::ROTATION_AXIS_CURVATURE_AXIS = 2;
 
 HandSearch::HandSearch(Parameters params)
-    : params_(params),
-      plots_samples_(false),
-      plots_local_axes_(false),
-      plots_camera_sources_(false) {
+    : params_(params), plots_local_axes_(false) {
   // Calculate radius for nearest neighbor search.
   const HandGeometry &hand_geom = params_.hand_geometry_;
   Eigen::Vector3d hand_dims;
   hand_dims << hand_geom.outer_diameter_ - hand_geom.finger_width_,
       hand_geom.depth_, hand_geom.height_ / 2.0;
   nn_radius_ = hand_dims.maxCoeff();
+  antipodal_ =
+      std::make_unique<Antipodal>(params.friction_coeff_, params.min_viable_);
   plot_ = std::make_unique<util::Plot>(params_.hand_axes_.size(),
                                        params_.num_orientations_);
 }
 
 std::vector<std::unique_ptr<HandSet>> HandSearch::searchHands(
-    const util::Cloud &cloud_cam, bool plots_normals,
-    bool plots_samples) const {
+    const util::Cloud &cloud_cam) const {
   double t0_total = omp_get_wtime();
 
   // Create KdTree for neighborhood search.
   const PointCloudRGB::Ptr &cloud = cloud_cam.getCloudProcessed();
   pcl::KdTreeFLANN<pcl::PointXYZRGBA> kdtree;
   kdtree.setInputCloud(cloud);
-
-  // Plot normals and/or samples if desired.
-  if (plots_normals) {
-    std::cout << "Plotting normals ...\n";
-    plot_->plotNormals(cloud_cam.getNormals(), cloud_normals_);
-  }
-
-  if (plots_samples) {
-    if (cloud_cam.getSampleIndices().size() > 0) {
-      std::cout << "Plotting sample indices ...\n";
-      plot_->plotSamples(cloud_cam.getSampleIndices(),
-                         cloud_cam.getCloudProcessed());
-    } else if (cloud_cam.getSamples().cols() > 0) {
-      std::cout << "Plotting samples ...\n";
-      plot_->plotSamples(cloud_cam.getSamples(), cloud_cam.getCloudProcessed());
-    }
-  }
 
   // 1. Estimate local reference frames.
   std::cout << "Estimating local reference frames ...\n";
@@ -86,7 +67,7 @@ std::vector<int> HandSearch::reevaluateHypotheses(
     const util::Cloud &cloud_cam,
     std::vector<std::unique_ptr<candidate::Hand>> &grasps,
     bool plot_samples) const {
-  // create KdTree for neighborhood search
+  // Create KdTree for neighborhood search.
   const Eigen::MatrixXi &camera_source = cloud_cam.getCameraSource();
   const Eigen::Matrix3Xd &cloud_normals = cloud_cam.getNormals();
   const PointCloudRGB::Ptr &cloud = cloud_cam.getCloudProcessed();
@@ -112,8 +93,8 @@ std::vector<int> HandSearch::reevaluateHypotheses(
   std::vector<int> labels(grasps.size());
 
 #ifdef _OPENMP
-#pragma omp parallel for private(nn_indices, nn_dists, nn_points) \
-    num_threads(params_.num_threads_)
+#pragma omp parallel for private(nn_indices, nn_dists, \
+                                 nn_points) num_threads(params_.num_threads_)
 #endif
   for (int i = 0; i < grasps.size(); i++) {
     labels[i] = 0;
@@ -127,7 +108,8 @@ std::vector<int> HandSearch::reevaluateHypotheses(
       util::PointList nn_points_frame;
       FingerHand finger_hand(params_.hand_geometry_.finger_width_,
                              params_.hand_geometry_.outer_diameter_,
-                             params_.hand_geometry_.depth_);
+                             params_.hand_geometry_.depth_,
+                             params_.num_finger_placements_);
 
       // Set the lateral and forward axes of the robot hand frame (closing
       // direction and grasp approach direction).
@@ -184,13 +166,14 @@ std::vector<std::unique_ptr<candidate::HandSet>> HandSearch::evalHands(
   util::PointList nn_points;
 
 #ifdef _OPENMP  // parallelization using OpenMP
-#pragma omp parallel for private(nn_indices, nn_dists, nn_points) \
-    num_threads(params_.num_threads_)
+#pragma omp parallel for private(nn_indices, nn_dists, \
+                                 nn_points) num_threads(params_.num_threads_)
 #endif
   for (std::size_t i = 0; i < frames.size(); i++) {
     pcl::PointXYZRGBA sample = eigenVectorToPcl(frames[i].getSample());
-    hand_set_list[i] = std::make_unique<HandSet>(params_.hand_geometry_, angles,
-                                                 params_.hand_axes_);
+    hand_set_list[i] = std::make_unique<HandSet>(
+        params_.hand_geometry_, angles, params_.hand_axes_,
+        params_.num_finger_placements_, params_.deepen_hand_, *antipodal_);
 
     if (kdtree.radiusSearch(sample, nn_radius_, nn_indices, nn_dists) > 0) {
       nn_points = point_list.slice(nn_indices);
@@ -237,8 +220,7 @@ int HandSearch::labelHypothesis(const util::PointList &point_list,
   util::PointList point_list_learning = point_list.slice(indices_learning);
 
   // evaluate if the grasp is antipodal
-  Antipodal antipodal;
-  int antipodal_result = antipodal.evaluateGrasp(
+  int antipodal_result = antipodal_->evaluateGrasp(
       point_list_learning, 0.003, finger_hand.getLateralAxis(),
       finger_hand.getForwardAxis(), 2);
 
