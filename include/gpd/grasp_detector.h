@@ -97,17 +97,6 @@ class GraspDetector {
       const std::vector<double>& workspace) const;
 
   /**
-   * Filter grasps based on their approach direction.
-   * \param hand_set_list list of grasp candidate sets
-   * \param direction the direction used for filtering
-   * \param thresh_rad the angle in radians above which grasps are filtered
-   * \return list of grasps after filtering
-   */
-  std::vector<std::unique_ptr<candidate::HandSet>> filterGraspsDirection(
-      std::vector<std::unique_ptr<candidate::HandSet>>& hand_set_list,
-      const Eigen::Vector3d& direction, const double thresh_rad);
-
-  /**
    * \brief Generate grasp candidates.
    * \param cloud the point cloud
    * \return the list of grasp candidates
@@ -217,9 +206,6 @@ class GraspDetector {
   double max_aperture_;  ///< the maximum opening width of the robot hand
   std::vector<double> workspace_grasps_;  ///< the workspace of the robot with
                                           /// respect to hand poses
-  bool filter_approach_direction_;
-  Eigen::Vector3d direction_;
-  double thresh_rad_;
 
   // selection parameters
   int num_selected_;  ///< the number of selected grasps

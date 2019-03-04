@@ -22,12 +22,17 @@ int HandSet::seed_ = 0;
 HandSet::HandSet(const HandGeometry &hand_geometry,
                  const Eigen::VectorXd &angles,
                  const std::vector<int> &hand_axes, int num_finger_placements,
-                 bool deepen_hand, Antipodal &antipodal)
+                 bool deepen_hand, bool filter_approach_direction,
+                 const Eigen::Vector3d& direction,
+                 double thresh_rad, Antipodal &antipodal)
     : hand_geometry_(hand_geometry),
       angles_(angles),
       hand_axes_(hand_axes),
       num_finger_placements_(num_finger_placements),
       deepen_hand_(deepen_hand),
+      filter_approach_direction_(filter_approach_direction),
+      direction_(direction),
+      thresh_rad_(thresh_rad),
       antipodal_(antipodal) {
   sample_.setZero();
   hands_.resize(0);
@@ -79,6 +84,14 @@ void HandSet::evalHands(const util::PointList &point_list,
     frame_rot.noalias() = frame_ * ROT_BINORMAL * rot;
     util::PointList point_list_frame = point_list.transformToHandFrame(
         local_frame.getSample(), frame_rot.transpose());
+
+    // Filter on approach direction.
+    if (filter_approach_direction_) {
+      double angle = acos(direction_.transpose() * frame_rot.col(0));
+      if (angle > thresh_rad_) {
+        continue;
+      }
+    }
 
     // Crop points on hand height.
     util::PointList point_list_cropped =

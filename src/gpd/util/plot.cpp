@@ -675,15 +675,15 @@ PCLVisualizer Plot::createViewer(std::string title) {
 
 void Plot::keyboardEventOccurred(const pcl::visualization::KeyboardEvent &event,
                                  void *viewer_void) {
-  pcl::visualization::PCLVisualizer *viewer =
-      static_cast<pcl::visualization::PCLVisualizer *>(viewer_void);
-  if (event.getKeySym() == "a" && event.keyDown()) {
-    if (viewer->contains("ref")) {
-      viewer->removeCoordinateSystem("ref");
-    } else {
-      viewer->addCoordinateSystem(0.1, "ref");
-    }
-  }
+//  pcl::visualization::PCLVisualizer *viewer =
+//      static_cast<pcl::visualization::PCLVisualizer *>(viewer_void);
+//  if (event.getKeySym() == "a" && event.keyDown()) {
+//    if (viewer->contains("ref")) {
+//      viewer->removeCoordinateSystem("ref");
+//    } else {
+//      viewer->addCoordinateSystem(0.1, "ref");
+//    }
+//  }
 }
 
 void Plot::plotCloud(const PointCloudRGBA::Ptr &cloud_rgb,

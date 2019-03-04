@@ -83,15 +83,6 @@ SequentialImportanceSampling::detectGrasps(util::Cloud& cloud) {
       grasp_detector_->filterGraspsWorkspace(hand_set_list, workspace_grasps_);
   printf("Grasps within workspace: %zu", hand_set_list.size());
 
-  if (filter_approach_direction_) {
-    hand_set_list = grasp_detector_->filterGraspsDirection(
-        hand_set_list, direction_, thresh_rad_);
-    if (visualize_rounds_) {
-      plotter.plotFingers3D(hand_set_list, cloud.getCloudOriginal(),
-                            "Filtered Grasps (Approach)", hand_geom);
-    }
-  }
-
   if (visualize_rounds_) {
     plotter.plotFingers3D(hand_set_list, cloud.getCloudOriginal(),
                           "Initial Grasps", hand_geom);
@@ -136,15 +127,6 @@ SequentialImportanceSampling::detectGrasps(util::Cloud& cloud) {
 
     hand_set_list_new = grasp_detector_->filterGraspsWorkspace(
         hand_set_list_new, workspace_grasps_);
-
-    if (filter_approach_direction_) {
-      hand_set_list_new = grasp_detector_->filterGraspsDirection(
-          hand_set_list_new, direction_, thresh_rad_);
-      if (visualize_steps_) {
-        plotter.plotFingers3D(hand_set_list_new, cloud.getCloudOriginal(),
-                              "Filtered Grasps (Approach)", hand_geom);
-      }
-    }
 
     if (visualize_rounds_) {
       plotter.plotSamples(samples, cloud.getCloudProcessed());

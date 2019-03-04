@@ -85,6 +85,9 @@ class HandSearch {
     std::vector<int> hand_axes_;  ///< the axes about which different hand
                                   /// orientations are generated
     bool deepen_hand_;  ///< if the hand is pushed forward onto the object
+    bool filter_approach_direction_;
+    Eigen::Vector3d direction_;
+    double thresh_rad_;
 
     /** antipodal grasp check */
     double friction_coeff_;  ///< angle of friction cone in degrees

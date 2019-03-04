@@ -1,3 +1,4 @@
+
 /*
  * Software License Agreement (BSD License)
  *
@@ -123,7 +124,9 @@ class HandSet {
    */
   HandSet(const HandGeometry& hand_geometry, const Eigen::VectorXd& angles,
           const std::vector<int>& hand_axes, int num_finger_placements,
-          bool deepen_hand, Antipodal& antipodal);
+          bool deepen_hand, bool filter_approach_direction,
+          const Eigen::Vector3d& direction, double thresh_rad,
+          Antipodal& antipodal);
 
   /**
    * \brief Calculate a set of grasp candidates given a local reference frame.
@@ -290,6 +293,10 @@ class HandSet {
       angles_;        ///< the hand orientations to consider in the local search
   bool deepen_hand_;  ///< if the hand is pushed forward onto the object
   int num_finger_placements_;  ///< the number of finger placements to evaluate
+
+  bool filter_approach_direction_;
+  Eigen::Vector3d direction_;
+  double thresh_rad_;
 
   HandGeometry hand_geometry_;  ///< the robot hand geometry
   std::vector<int> hand_axes_;  ///< the axes about which the hand frame is
