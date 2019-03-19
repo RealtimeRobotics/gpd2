@@ -56,11 +56,7 @@ GraspDetector::GraspDetector(const std::string& config_filename) {
   generator_params.voxelize_ =
       config_file.getValueOfKey<bool>("voxelize", true);
   generator_params.voxel_size_ =
-<<<<<<< HEAD
-      config_file.getValueOfKey<double>("voxel_size", true);
-=======
       config_file.getValueOfKey<double>("voxel_size", 0.003);
->>>>>>> origin/master
   generator_params.workspace_ =
       config_file.getValueOfKeyAsStdVectorDouble("workspace", "-1 1 -1 1 -1 1");
 
