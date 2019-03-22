@@ -258,6 +258,15 @@ void DataGenerator::generateData() {
       util::Cloud cloud(
           prefix + "_" + boost::lexical_cast<std::string>(j + 1) + ".pcd",
           view_points);
+
+      //Filtering nan and inf
+      //TODO: A better solution would be filtering using the workspace limits from cfg file
+      std::vector<double> workspace{std::numeric_limits<double>::lowest(),std::numeric_limits<double>::max(),
+                                    std::numeric_limits<double>::lowest(),std::numeric_limits<double>::max(),
+                                    std::numeric_limits<double>::lowest(),std::numeric_limits<double>::max()};
+      cloud.filterWorkspace(workspace);
+      printf("Cloud without nan/inf: %zu\n", cloud.getCloudProcessed()->size());
+
       cloud.voxelizeCloud(VOXEL_SIZE);
       cloud.calculateNormalsOMP(num_threads_);
       cloud.setNormals(cloud.getNormals() * (-1.0));
