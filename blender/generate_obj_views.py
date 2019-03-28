@@ -30,6 +30,33 @@ def random_3D_unit_vector():
     z = np.cos( theta )
     return [x,y,z]
 
+def colored_random_3D_unit_vector(phi_limits = [0,np.pi*2], theta_limits = [np.pi, 0]):
+    """
+    Generates a random 3D unit vector (direction) with a uniform spherical distribution
+    Algo from http://stackoverflow.com/questions/5408276/python-uniform-spherical-distribution
+    :return:
+    """
+    
+    if (len(phi_limits) == 0):
+        phi = np.random.uniform(0,np.pi*2)
+    else:
+        phi_sets = len(phi_limits)//2
+        random_phi_index = np.random.randint(phi_sets)*2
+        phi = np.random.uniform(phi_limits[random_phi_index],phi_limits[random_phi_index+1])
+    
+    if (len(theta_limits) == 0):
+        costheta = np.random.uniform(-1,1)
+    else:
+        theta_sets = len(theta_limits)//2
+        random_theta_index = np.random.randint(theta_sets)*2
+        costheta = np.random.uniform(np.cos(theta_limits[random_theta_index]),np.cos(theta_limits[random_theta_index+1]))
+
+    theta = np.arccos( costheta )
+    x = np.sin( theta) * np.cos( phi )
+    y = np.sin( theta) * np.sin( phi )
+    z = np.cos( theta )
+    return [x,y,z]
+
 def reset_blend():
 #    bpy.ops.wm.read_factory_settings()
 
@@ -133,12 +160,12 @@ def export_scene(file_name):
                              axis_up='Z')
 
 
-def loop_T(camera_distance_from_object, random_view_N, pc_resolution, pcd_file_prefix):
+def loop(camera_distance_from_object, random_view_N, pc_resolution, pcd_file_prefix):
     view_infos = [] 
     for i in range(random_view_N):
         print("VIEW[",i+1,"]----------------------------------------------------------")
         bpy.ops.object.select_all(action='DESELECT')
-        camera_versor = random_3D_unit_vector()
+        camera_versor = colored_random_3D_unit_vector(phi_limits = X_Y_angle_limits, theta_limits = Z_angle_limits)
         #theta = np.random.uniform(0,np.pi*2)
         #print("(x,w,z,theta): ", x, y, z, theta)    
         camera_position = [x * camera_distance_from_object for x in camera_versor]
@@ -193,6 +220,9 @@ camera_distance_from_object = 0.5
 random_view_N = 20
 pc_resolution = 300
 
+X_Y_angle_limits = []#[0,np.pi/2]
+Z_angle_limits = [np.pi, np.pi/2+0.4 , np.pi/2-0.7, 0]
+
 pcd_file_prefix = "/tmp/scan_"
 obj_file = "/home/luca/CADs/soda_cans/330_can.obj"
 #obj_file = "/home/luca/CADs/sockets/7174K640/7174K640_SOCKET.stl"
@@ -202,8 +232,9 @@ import_object(object_position, obj_file, object_name)
 ground_through_file = pcd_file_prefix + "gt.obj"
 export_scene(ground_through_file)
 
-views_info = loop_T(camera_distance_from_object, random_view_N, pc_resolution, pcd_file_prefix)
+views_info = loop(camera_distance_from_object, random_view_N, pc_resolution, pcd_file_prefix)
 visualize_view_infos(views_info, random_view_N)
 
 # in order to generate the ground through as pointcloud
 # pcl_mesh_sampling scan_gt.obj scan_gt.pcd -leaf_size 0.003
+# pcl_viewer scan_gt.pcd -use_point_picking
