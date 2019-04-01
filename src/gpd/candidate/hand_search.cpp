@@ -117,14 +117,19 @@ std::vector<int> HandSearch::reevaluateHypotheses(
       finger_hand.setLateralAxis(1);
 
       // Check for collisions and if the hand contains at least one point.
-      if (reevaluateHypothesis(nn_points, *grasps[i], finger_hand,
-                               nn_points_frame)) {
-        int label = labelHypothesis(nn_points_frame, finger_hand);
-        if (label == Antipodal::FULL_GRASP) {
-          labels[i] = 1;
-          grasps[i]->setFullAntipodal(true);
-        } else if (label == Antipodal::HALF_GRASP) {
-          grasps[i]->setHalfAntipodal(true);
+      if (reevaluateHypothesis(nn_points, *grasps[i], finger_hand, nn_points_frame))
+      {
+        //FILTER OUR HAND APPROACH
+        int approach_correct = labelHandApproach(*grasps[i]);
+        if (approach_correct == 1)
+        {
+          int label = labelHypothesis(nn_points_frame, finger_hand);
+          if (label == Antipodal::FULL_GRASP) {
+            labels[i] = 1;
+            grasps[i]->setFullAntipodal(true);
+          } else if (label == Antipodal::HALF_GRASP) {
+            grasps[i]->setHalfAntipodal(true);
+          }
         }
       }
     }
@@ -227,6 +232,18 @@ int HandSearch::labelHypothesis(const util::PointList &point_list,
       finger_hand.getForwardAxis(), 2);
 
   return antipodal_result;
+}
+
+int HandSearch::labelHandApproach(const candidate::Hand &hand) const
+{
+  //hand.print();
+  Eigen::Vector3d hand_position = hand.getPosition();
+  Eigen::Vector3d hand_orientation = hand.getApproach();
+
+  if((hand_orientation[2]<=-0.95)) //&& hand_position[2]>0))// || (hand_orientation[2]>=0.95 && hand_position[2]<0))
+    return 1;
+
+  return 0;
 }
 
 }  // namespace candidate

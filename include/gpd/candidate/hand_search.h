@@ -173,6 +173,13 @@ class HandSearch {
                       FingerHand& finger_hand) const;
 
   /**
+   * \brief Check hand grasp pose
+   * \param hand the grasp
+   * \return the label
+   */
+  int labelHandApproach(const candidate::Hand &hand) const;
+
+  /**
    * \brief Convert an Eigen::Vector3d object to a pcl::PointXYZRGBA.
    * \param v the Eigen vector
    * \reutrn the pcl point

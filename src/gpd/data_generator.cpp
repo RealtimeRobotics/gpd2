@@ -281,10 +281,10 @@ void DataGenerator::generateData() {
 
         if (plot_grasps) {
           // Plot plotter;
-          //        plotter.plotNormals(cloud.getCloudOriginal(),
-          //        cloud.getNormals());
-          //        plotter.plotFingers(grasps, cloud.getCloudOriginal(),
-          //        "Grasps on view");
+                  plotter.plotNormals(cloud.getCloudOriginal(),
+                  cloud.getNormals());
+                  plotter.plotFingers3D(grasps, cloud.getCloudOriginal(),
+                  "Grasps on view", hand_geom);
           //        plotter.plotFingers3D(candidates,
           //        cloud_cam.getCloudOriginal(), "Grasps on view",
           //        hand_geom.outer_diameter_,
@@ -296,6 +296,25 @@ void DataGenerator::generateData() {
         // 3. Evaluate grasps against ground truth (mesh).
         printf("Eval GT ...\n");
         std::vector<int> labels = detector_->evalGroundTruth(mesh, grasps);
+
+        // VISUALIZE SELECTION:
+        /*std::vector<int> positive_indexes;
+        std::vector<int> negatives_indexes;
+        splitInstances(labels, positive_indexes, negatives_indexes);
+
+        std::vector<std::unique_ptr<candidate::Hand>> positive_grasps;
+
+        for(int i = 0; i < labels.size(); i++)
+        {
+          if (labels[i] == 1)
+            positive_grasps.push_back(std::unique_ptr<candidate::Hand>(grasps[i].get()));
+        }
+        if (true) {
+                  plotter.plotFingers3D(positive_grasps, cloud.getCloudOriginal(),
+                  "positive Grasps", hand_geom);
+                  //plotter.plotFingers3D(negative_grasps, cloud.getCloudOriginal(),
+                  //"negative Grasps", hand_geom);
+        }*/
 
         // 4. Split grasps into positives and negatives.
         std::vector<int> positives;
