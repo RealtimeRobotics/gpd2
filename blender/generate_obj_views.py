@@ -12,6 +12,7 @@ import blensor
 import numpy as np
 
 import os
+import subprocess
 
 from math import pi
 
@@ -148,6 +149,10 @@ def import_object(object_position, obj_file, obj_name = "Mesh"):
     bpy.ops.transform.translate(value=(object_position[0], object_position[1], object_position[2]))
     #bpy.ops.transform.resize(value=(1.0, 1.0, 1.0))
     
+    mat = bpy.data.materials.new(name="obj_material")
+    bpy.context.selected_objects[0].data.materials.append(mat)
+    bpy.context.selected_objects[0].active_material.diffuse_color = (1, 0, 0)
+    
     bpy.context.selected_objects[0].name = obj_name
     
     bpy.ops.object.select_all(action='DESELECT')
@@ -219,9 +224,10 @@ object_position = [0.0, 0.0, 0.0]
 camera_distance_from_object = 0.5
 random_view_N = 20
 pc_resolution = 300
+ground_through_leaf_size = 0.001
 
 X_Y_angle_limits = []#[0,np.pi/2]
-Z_angle_limits = [np.pi, np.pi/2+0.4 , np.pi/2-0.7, 0]
+Z_angle_limits = [np.pi, np.pi/2+0.4 , np.pi/2-0.4, 0]
 
 pcd_file_prefix = "/tmp/scan_"
 obj_file = "/home/luca/CADs/soda_cans/330_can.obj"
@@ -229,12 +235,41 @@ obj_file = "/home/luca/CADs/soda_cans/330_can.obj"
 
 object_name = "Mesh"
 import_object(object_position, obj_file, object_name)
-ground_through_file = pcd_file_prefix + "gt.obj"
-export_scene(ground_through_file)
+ground_through_obj_file = pcd_file_prefix + "gt.obj"
+export_scene(ground_through_obj_file)
 
 views_info = loop(camera_distance_from_object, random_view_N, pc_resolution, pcd_file_prefix)
 visualize_view_infos(views_info, random_view_N)
 
-# in order to generate the ground through as pointcloud
-# pcl_mesh_sampling scan_gt.obj scan_gt.pcd -leaf_size 0.003
+ground_through_pcd_file = pcd_file_prefix + "gt.pcd"
+pcl_cmd = "pcl_mesh_sampling " + ground_through_obj_file + " " + ground_through_pcd_file + " -leaf_size " + str(ground_through_leaf_size)
+subprocess.Popen(pcl_cmd, shell=True, stderr=subprocess.PIPE)
+
+with open('/tmp/read_me.txt', 'w') as f:
+    f.write("obj_file: %s \n" % obj_file)
+    
+    f.write("object_position: [")
+    for item in object_position:
+        f.write("%s " % item)
+    f.write("]\n") 
+    
+    f.write("camera_distance_from_object: %s \n" % camera_distance_from_object)
+    
+    f.write("X_Y_angle_limits: [")
+    for item in X_Y_angle_limits:
+        f.write("%s " % item)
+    f.write("]\n")
+    
+    f.write("Z_angle_limits: [")    
+    for item in Z_angle_limits:
+        f.write("%s" % item)
+    f.write("]\n")
+    
+    f.write("views_resolution: %s \n" % pc_resolution)
+
+    f.write("gt_leaf_size: %s \n" % ground_through_leaf_size)    
+
+    f.write("random_view_N: %s \n" % random_view_N)
+
+# to inspect the pointclouds:
 # pcl_viewer scan_gt.pcd -use_point_picking
