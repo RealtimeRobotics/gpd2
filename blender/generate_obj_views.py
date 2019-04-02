@@ -262,7 +262,7 @@ with open('/tmp/read_me.txt', 'w') as f:
     
     f.write("Z_angle_limits: [")    
     for item in Z_angle_limits:
-        f.write("%s" % item)
+        f.write("%s " % item)
     f.write("]\n")
     
     f.write("views_resolution: %s \n" % pc_resolution)
