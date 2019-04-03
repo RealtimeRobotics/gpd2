@@ -19,7 +19,11 @@ void CandidatesGenerator::preprocessPointCloud(util::Cloud &cloud) {
   if (params_.voxelize_) {
     cloud.voxelizeCloud(params_.voxel_size_);
   }
+
   cloud.calculateNormals(params_.num_threads_);
+  //cloud.calculateNormalsOMP(params_.num_threads_);
+  //cloud.setNormals(cloud.getNormals() * (-1.0));
+
   if (params_.sample_above_plane_) {
     cloud.sampleAbovePlane();
   }

@@ -3,7 +3,7 @@
 RED='\033[0;31m'
 L_BLUE='\033[1;34m'
 NC='\033[0m' # No Color
-work_path="/home/luca/gpd_data"
+work_path="/home/luca/gpd_data/tmp"
 
 gpd_pytorch_path="/home/luca/gpd_repo/gpd2/pytorch"
 

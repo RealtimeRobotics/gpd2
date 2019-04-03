@@ -17,6 +17,22 @@ bool checkFileExists(const std::string &file_name) {
   return true;
 }
 
+// function to read in a double array from a single line of a configuration file
+std::vector<double> stringToDouble(const std::string &str) {
+  std::vector<double> values;
+  std::stringstream ss(str);
+  double v;
+
+  while (ss >> v) {
+    values.push_back(v);
+    if (ss.peek() == ' ') {
+      ss.ignore();
+    }
+  }
+
+  return values;
+}
+
 int DoMain(int argc, char *argv[]) {
   // Read arguments from command line.
   if (argc < 3) {
@@ -41,8 +57,16 @@ int DoMain(int argc, char *argv[]) {
   }
 
   // View point from which the camera sees the point cloud.
+  util::ConfigFile config_file(config_filename);
+  config_file.ExtractKeys();
+  std::string camera_position_str = config_file.getValueOfKeyAsString("camera_position", "0.0 0.0 0.0");
+  std::vector<double> camera_position = stringToDouble(camera_position_str);
+
   Eigen::Matrix3Xd view_points(3, 1);
-  view_points.setZero();
+  //view_points.setZero();
+  view_points(0,0) = camera_position[0];
+  view_points(1,0) = camera_position[1];
+  view_points(2,0) = camera_position[2];
 
   // Load point cloud from file
   util::Cloud cloud(pcd_filename, view_points);
