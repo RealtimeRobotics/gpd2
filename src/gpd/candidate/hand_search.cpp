@@ -240,7 +240,7 @@ int HandSearch::labelHandApproach(const candidate::Hand &hand) const
   Eigen::Vector3d hand_position = hand.getPosition();
   Eigen::Vector3d hand_orientation = hand.getApproach();
 
-  if((hand_orientation[2]<=-0.95)) //&& hand_position[2]>0))// || (hand_orientation[2]>=0.95 && hand_position[2]<0))
+  if((hand_orientation[2]<=-0.97 && hand_position[2]>0) || (hand_orientation[2]>=0.97 && hand_position[2]<0))
     return 1;
 
   return 0;

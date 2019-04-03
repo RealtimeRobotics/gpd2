@@ -1,7 +1,15 @@
 #include <gpd/data_generator.h>
 
 #include <Eigen/StdVector>
-
+/*
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+#define ANSI_COLOR_CYAN    "\x1b[36m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
+*/
 namespace gpd {
 
 const std::string DataGenerator::IMAGES_DS_NAME = "images";
@@ -28,6 +36,8 @@ DataGenerator::DataGenerator(const std::string &config_filename)
       config_file.getValueOfKeyAsStdVectorInt("test_views", "3 7 11 15 19");
   num_threads_ = config_file.getValueOfKey<int>("num_threads", 1);
   num_samples_ = config_file.getValueOfKey<int>("num_samples", 500);
+
+  plot_grasps_ = config_file.getValueOfKey<int>("plot_grasps", false);;
 
   std::cout << "============ DATA ============================\n";
   std::cout << "data_root: " << data_root_ << "\n";
@@ -57,7 +67,7 @@ void DataGenerator::generateDataBigbird() {
   std::string test_file_path = output_root_ + "test.h5";
 
   int store_step = 5;
-  bool plot_grasps = false;
+  //bool plot_grasps_ = false;
   // debugging
   int num_objects = 4;
   num_views_per_object_ = 4;
@@ -105,7 +115,7 @@ void DataGenerator::generateDataBigbird() {
       std::vector<std::unique_ptr<cv::Mat>> images;
       bool has_grasps = detector_->createGraspImages(cloud, grasps, images);
 
-      if (plot_grasps) {
+      if (plot_grasps_) {
         // Plot plotter;
         //        plotter.plotNormals(cloud.getCloudOriginal(),
         //        cloud.getNormals());
@@ -208,7 +218,7 @@ void DataGenerator::generateData() {
   std::vector<std::string> objects = loadObjectNames(objects_file_location_);
 
   int store_step = 1;
-  bool plot_grasps = false;
+  //bool plot_grasps = true;
   int num_objects = objects.size();
 
   // debugging
@@ -245,7 +255,8 @@ void DataGenerator::generateData() {
     const double VOXEL_SIZE = 0.003;
 
     for (int j = 0; j < num_views_per_object_; j++) {
-      printf("===> Processing view %d/%d\n", j + 1, num_views_per_object_);
+
+      printf("\e[1m\x1b[94m===> Processing view %d/%d\x1b[0m\n", j + 1, num_views_per_object_);
 
       std::vector<int> positives_view(0);
       std::vector<int> negatives_view(0);
@@ -279,12 +290,14 @@ void DataGenerator::generateData() {
         std::vector<std::unique_ptr<cv::Mat>> images;
         bool has_grasps = detector_->createGraspImages(cloud, grasps, images);
 
-        if (plot_grasps) {
+        if (plot_grasps_) {
           // Plot plotter;
-                  plotter.plotNormals(cloud.getCloudOriginal(),
-                  cloud.getNormals());
-                  plotter.plotFingers3D(grasps, cloud.getCloudOriginal(),
-                  "Grasps on view", hand_geom);
+          //for (int i = 0; i < cloud.getNormals().cols(); i++) {
+          //  std::cout << i << " :" << cloud.getNormals()(0, i) << " " << cloud.getNormals()(1, i) << " " << cloud.getNormals()(2, i) << std::endl;
+          //}
+          //        plotter.plotNormals(cloud);
+          //        plotter.plotFingers3D(grasps, cloud.getCloudOriginal(),
+          //        "Grasps on view", hand_geom);
           //        plotter.plotFingers3D(candidates,
           //        cloud_cam.getCloudOriginal(), "Grasps on view",
           //        hand_geom.outer_diameter_,
@@ -298,22 +311,23 @@ void DataGenerator::generateData() {
         std::vector<int> labels = detector_->evalGroundTruth(mesh, grasps);
 
         // VISUALIZE SELECTION:
-        std::vector<int> positive_indexes;
-        std::vector<int> negatives_indexes;
-        splitInstances(labels, positive_indexes, negatives_indexes);
-
-        std::vector<candidate::Hand> positive_grasps;
-        for(int i = 0; i < labels.size(); i++)
+        if (plot_grasps_)
         {
-          if (labels[i] == 1)
-            positive_grasps.push_back(*grasps[i].get());
-        }
-        if (true) {
-                  plotter.plotFingers3D(positive_grasps, cloud.getCloudOriginal(),
-                  "positive Grasps", hand_geom.outer_diameter_,
-                                     hand_geom.finger_width_,
-                                     hand_geom.depth_,
-                                     hand_geom.height_);
+          std::vector<int> positive_indexes;
+          std::vector<int> negatives_indexes;
+          splitInstances(labels, positive_indexes, negatives_indexes);
+
+          std::vector<candidate::Hand> positive_grasps;
+          for(int i = 0; i < labels.size(); i++)
+          {
+            if (labels[i] == 1)
+              positive_grasps.push_back(*grasps[i].get());
+          }
+
+          plotter.plotFingers3D(positive_grasps, cloud.getCloudOriginal(),
+                                "positive Grasps", hand_geom.outer_diameter_,
+                                hand_geom.finger_width_, hand_geom.depth_,
+                                hand_geom.height_);
         }
 
         // 4. Split grasps into positives and negatives.

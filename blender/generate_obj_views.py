@@ -179,7 +179,11 @@ def loop(camera_distance_from_object, random_view_N, pc_resolution, pcd_file_pre
         pcd_file = pcd_file_prefix + str(i+1) + ".pcd"
         print("pcd_file: " + pcd_file)
         
-        view_infos.append(generate_view(camera_position, pc_resolution, pcd_file))
+        curr_view_info = generate_view(camera_position, pc_resolution, pcd_file)
+        
+        generatere_cfg_file(curr_view_info)
+        
+        view_infos.append(curr_view_info)        
     return view_infos
        
                
@@ -192,7 +196,22 @@ def visualize_view_infos(view_infos, random_view_N = 1):
         
         view_name = "view_" + str(i+1)
         bpy.context.selected_objects[0].name = view_name
+        
+def generatere_cfg_file(view_info):
+    global camera_distance_from_object
+    filename, file_extension = os.path.splitext(view_info[0])
+    cfg_file = filename + ".cfg"
+    
+    camera_position = str(view_info[1][0]) +" "+ str(view_info[1][1]) +" "+ str(view_info[1][2]) 
 
+    workspace_grasps = str(-camera_distance_from_object) +" "+ str(camera_distance_from_object)  +" "+ \
+                       str(-camera_distance_from_object) +" "+ str(camera_distance_from_object)  +" "+ \
+                       str(-camera_distance_from_object) +" "+ str(camera_distance_from_object) 
+
+    with open(cfg_file, 'w') as f:
+        f.write("workspace_grasps = %s\n" % workspace_grasps)
+
+        f.write("camera_position = %s\n" % camera_position)
    
 def test():
     bpy.ops.mesh.primitive_plane_add(radius=0.29,location=(0, 0, 0))

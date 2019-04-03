@@ -179,6 +179,7 @@ class DataGenerator {
   int chunk_size_;
   int num_threads_;
   int num_samples_;
+  bool plot_grasps_;
   std::vector<int> test_views_;
   std::vector<int> all_cam_sources_;
 
