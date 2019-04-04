@@ -259,7 +259,7 @@ std::vector<std::unique_ptr<candidate::Hand>> GraspDetector::detectGrasps(
   hands = selectGrasps(hands);
   if (plot_valid_grasps_) {
     plotter_->plotFingers3D(hands, cloud.getCloudOriginal(), "Valid Grasps",
-                            hand_geom);
+                            hand_geom, false);
   }
 
   // 6. Cluster the grasps.
