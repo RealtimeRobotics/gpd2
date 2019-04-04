@@ -57,16 +57,36 @@ int DoMain(int argc, char *argv[]) {
   }
 
   // View point from which the camera sees the point cloud.
+  Eigen::Matrix3Xd view_points(3, 1);
+  view_points.setZero();
+
+  //Load extra parameters:
   util::ConfigFile config_file(config_filename);
   config_file.ExtractKeys();
-  std::string camera_position_str = config_file.getValueOfKeyAsString("camera_position", "0.0 0.0 0.0");
-  std::vector<double> camera_position = stringToDouble(camera_position_str);
+  bool load_pointcloud_cfg = config_file.getValueOfKey<bool>("load_pointcloud_cfg", false);
 
-  Eigen::Matrix3Xd view_points(3, 1);
-  //view_points.setZero();
-  view_points(0,0) = camera_position[0];
-  view_points(1,0) = camera_position[1];
-  view_points(2,0) = camera_position[2];
+  if(load_pointcloud_cfg)
+  {
+    boost::filesystem::path pc_cfg_filename(pcd_filename);
+    pc_cfg_filename.replace_extension( boost::filesystem::path(".cfg"));
+    util::ConfigFile pc_cfg_file(pc_cfg_filename.string());
+    pc_cfg_file.ExtractKeys();
+
+    std::cout << "============ " << pc_cfg_filename.filename() << " ============\n";
+
+    //Update view_points
+    if(pc_cfg_file.keyExists("camera_position"))
+    {
+      std::string camera_position_str = pc_cfg_file.getValueOfKeyAsString("camera_position", "0.0 0.0 0.0");
+      std::vector<double> camera_position = stringToDouble(camera_position_str);
+      view_points(0,0) = camera_position[0];
+      view_points(1,0) = camera_position[1];
+      view_points(2,0) = camera_position[2];
+      std::cout << "camera_position: " << camera_position_str << "\n";
+    }
+
+    std::cout << "==============================================\n";
+  }
 
   // Load point cloud from file
   util::Cloud cloud(pcd_filename, view_points);
@@ -74,6 +94,14 @@ int DoMain(int argc, char *argv[]) {
     std::cout << "Error: Input point cloud is empty or does not exist!\n";
     return (-1);
   }
+
+  //Filtering nan and inf
+  std::vector<double> cloud_limits{std::numeric_limits<double>::lowest(),std::numeric_limits<double>::max(),
+                                   std::numeric_limits<double>::lowest(),std::numeric_limits<double>::max(),
+                                   std::numeric_limits<double>::lowest(),std::numeric_limits<double>::max()};
+  cloud.filterWorkspace(cloud_limits);
+  printf("Cloud without nan/inf: %zu points\n", cloud.getCloudProcessed()->size());
+
 
   // Load surface normals from file.
   if (argc > 3) {

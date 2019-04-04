@@ -338,8 +338,6 @@ void DataGenerator::generateData() {
                                 hand_geom.height_);
         }
 
-
-
         if (positives_view.size() > 0 && positives.size() > 0) {
           for (int k = 0; k < positives.size(); k++) {
             positives[k] += images_view.size();
