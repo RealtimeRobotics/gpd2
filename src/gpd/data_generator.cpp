@@ -37,7 +37,9 @@ DataGenerator::DataGenerator(const std::string &config_filename)
   num_threads_ = config_file.getValueOfKey<int>("num_threads", 1);
   num_samples_ = config_file.getValueOfKey<int>("num_samples", 500);
 
-  plot_grasps_ = config_file.getValueOfKey<int>("plot_grasps", false);;
+  plot_grasps_ = config_file.getValueOfKey<bool>("plot_grasps", false);
+  voxelize_ = config_file.getValueOfKey<bool>("voxelize_view", true);
+  voxel_size_ = config_file.getValueOfKey<double>("voxel_view_size", 0.003);
 
   std::cout << "============ DATA ============================\n";
   std::cout << "data_root: " << data_root_ << "\n";
@@ -51,11 +53,14 @@ DataGenerator::DataGenerator(const std::string &config_filename)
     std::cout << test_views_[i] << " ";
   }
   std::cout << "\n";
+  std::cout << "plot_grasps: " << (plot_grasps_ ? "true" : "false") << "\n";
+  std::cout << "voxelize_view: " << (voxelize_ ? "true" : "false") << "\n";
+  std::cout << "voxel_view_size: " << voxel_size_ << "\n";
   std::cout << "==============================================\n";
 
-  Eigen::VectorXi cam_sources = Eigen::VectorXi::LinSpaced((360 / 3), 0, 360);
-  all_cam_sources_.resize(cam_sources.size());
-  Eigen::VectorXi::Map(&all_cam_sources_[0], cam_sources.rows()) = cam_sources;
+  //  Eigen::VectorXi cam_sources = Eigen::VectorXi::LinSpaced((360 / 3), 0, 360);
+  //  all_cam_sources_.resize(cam_sources.size());
+  //  Eigen::VectorXi::Map(&all_cam_sources_[0], cam_sources.rows()) = cam_sources;
   //  std::cout << cam_sources << "\n";
 }
 
@@ -67,7 +72,6 @@ void DataGenerator::generateDataBigbird() {
   std::string test_file_path = output_root_ + "test.h5";
 
   int store_step = 5;
-  //bool plot_grasps_ = false;
   // debugging
   int num_objects = 4;
   num_views_per_object_ = 4;
@@ -218,7 +222,6 @@ void DataGenerator::generateData() {
   std::vector<std::string> objects = loadObjectNames(objects_file_location_);
 
   int store_step = 1;
-  //bool plot_grasps = true;
   int num_objects = objects.size();
 
   // debugging
@@ -252,7 +255,7 @@ void DataGenerator::generateData() {
     mesh.calculateNormalsOMP(num_threads_);
     mesh.setNormals(mesh.getNormals() * (-1.0));
 
-    const double VOXEL_SIZE = 0.003;
+    //const double VOXEL_SIZE = 0.003;
 
     for (int j = 0; j < num_views_per_object_; j++) {
 
@@ -272,13 +275,16 @@ void DataGenerator::generateData() {
 
       //Filtering nan and inf
       //TODO: A better solution would be filtering using the workspace limits from cfg file
-      std::vector<double> workspace{std::numeric_limits<double>::lowest(),std::numeric_limits<double>::max(),
-                                    std::numeric_limits<double>::lowest(),std::numeric_limits<double>::max(),
-                                    std::numeric_limits<double>::lowest(),std::numeric_limits<double>::max()};
-      cloud.filterWorkspace(workspace);
+      std::vector<double> cloud_limits{std::numeric_limits<double>::lowest(),std::numeric_limits<double>::max(),
+                                       std::numeric_limits<double>::lowest(),std::numeric_limits<double>::max(),
+                                       std::numeric_limits<double>::lowest(),std::numeric_limits<double>::max()};
+      cloud.filterWorkspace(cloud_limits);
       printf("Cloud without nan/inf: %zu\n", cloud.getCloudProcessed()->size());
 
-      cloud.voxelizeCloud(VOXEL_SIZE);
+      if (voxelize_) {
+        cloud.voxelizeCloud(voxel_size_);
+      }
+
       cloud.calculateNormalsOMP(num_threads_);
       cloud.setNormals(cloud.getNormals() * (-1.0));
 
@@ -310,32 +316,30 @@ void DataGenerator::generateData() {
         printf("Eval GT ...\n");
         std::vector<int> labels = detector_->evalGroundTruth(mesh, grasps);
 
-        // VISUALIZE SELECTION:
-        if (plot_grasps_)
-        {
-          std::vector<int> positive_indexes;
-          std::vector<int> negatives_indexes;
-          splitInstances(labels, positive_indexes, negatives_indexes);
-
-          std::vector<candidate::Hand> positive_grasps;
-          for(int i = 0; i < labels.size(); i++)
-          {
-            if (labels[i] == 1)
-              positive_grasps.push_back(*grasps[i].get());
-          }
-
-          plotter.plotFingers3D(positive_grasps, cloud.getCloudOriginal(),
-                                "positive Grasps", hand_geom.outer_diameter_,
-                                hand_geom.finger_width_, hand_geom.depth_,
-                                hand_geom.height_);
-        }
-
         // 4. Split grasps into positives and negatives.
         std::vector<int> positives;
         std::vector<int> negatives;
         splitInstances(labels, positives, negatives);
         printf("  positives, negatives: %zu, %zu\n", positives.size(),
                negatives.size());
+
+        if (plot_grasps_)
+        {
+          std::vector<candidate::Hand> positive_grasps;
+          for(int i = 0; i < labels.size(); i++)
+          {
+            if (labels[i] == 1)
+              positive_grasps.push_back(*grasps[i].get());
+          }
+          //plotter.plotFingers3D(positive_grasps, cloud.getCloudOriginal(),
+          plotter.plotFingers3D(positive_grasps, cloud.getCloudProcessed(),
+                                "positive Grasps", hand_geom.outer_diameter_,
+                                hand_geom.finger_width_, hand_geom.depth_,
+                                hand_geom.height_);
+        }
+
+
+
         if (positives_view.size() > 0 && positives.size() > 0) {
           for (int k = 0; k < positives.size(); k++) {
             positives[k] += images_view.size();

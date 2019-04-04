@@ -180,6 +180,8 @@ class DataGenerator {
   int num_threads_;
   int num_samples_;
   bool plot_grasps_;
+  bool voxelize_;
+  double voxel_size_;
   std::vector<int> test_views_;
   std::vector<int> all_cam_sources_;
 
