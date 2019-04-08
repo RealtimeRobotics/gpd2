@@ -20,7 +20,7 @@ GraspDetector::GraspDetector(const std::string& config_filename) {
 
   // Read plotting parameters.
   plot_normals_ = config_file.getValueOfKey<bool>("plot_normals", false);
-  plot_samples_ = config_file.getValueOfKey<bool>("plot_samples", true);
+  plot_samples_ = config_file.getValueOfKey<bool>("plot_samples", false);
   plot_candidates_ = config_file.getValueOfKey<bool>("plot_candidates", false);
   plot_filtered_candidates_ =
       config_file.getValueOfKey<bool>("plot_filtered_candidates", false);
@@ -57,6 +57,8 @@ GraspDetector::GraspDetector(const std::string& config_filename) {
       config_file.getValueOfKey<bool>("voxelize", true);
   generator_params.voxel_size_ =
       config_file.getValueOfKey<double>("voxel_size", 0.003);
+  generator_params.camera_inside_the_object_ =
+      config_file.getValueOfKey<bool>("camera_inside_the_object", false);
   generator_params.workspace_ =
       config_file.getValueOfKeyAsStdVectorDouble("workspace", "-1 1 -1 1 -1 1");
 
@@ -96,6 +98,8 @@ GraspDetector::GraspDetector(const std::string& config_filename) {
   printStdVector(generator_params.workspace_, "workspace");
   printf("sample_above_plane: %s\n",
          generator_params.sample_above_plane_ ? "true" : "false");
+  printf("camera_inside_the_object: %s\n",
+         generator_params.camera_inside_the_object_ ? "true" : "false");
   printf("==============================================\n");
 
   printf("============ CANDIDATE GENERATION ============\n");

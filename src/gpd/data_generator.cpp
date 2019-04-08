@@ -252,10 +252,10 @@ void DataGenerator::generateData() {
     // Load mesh for ground truth.
     std::string prefix = data_root_ + objects[i];
     util::Cloud mesh = loadMesh(prefix + "_gt.pcd", prefix + "_gt_normals.csv");
+
+    //Calculate Normals
     mesh.calculateNormalsOMP(num_threads_);
     mesh.setNormals(mesh.getNormals() * (-1.0));
-
-    //const double VOXEL_SIZE = 0.003;
 
     for (int j = 0; j < num_views_per_object_; j++) {
 
@@ -285,6 +285,7 @@ void DataGenerator::generateData() {
         cloud.voxelizeCloud(voxel_size_);
       }
 
+      //Calculate Normals
       cloud.calculateNormalsOMP(num_threads_);
       cloud.setNormals(cloud.getNormals() * (-1.0));
 
