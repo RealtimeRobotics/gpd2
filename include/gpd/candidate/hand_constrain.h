@@ -32,30 +32,13 @@
 #ifndef HAND_CONSTRAIN_H
 #define HAND_SEARCH_H
 
+#include <gpd/candidate/hand.h>
+
 #include <boost/filesystem.hpp>
 #include "yaml-cpp/yaml.h"
-
-//TODO clean includes
 #include <Eigen/Dense>
 
-#include <pcl/features/normal_3d_omp.h>
-#include <pcl/filters/random_sample.h>
-#include <pcl/kdtree/kdtree.h>
-#include <pcl/point_cloud.h>
-
-#include <omp.h>
-
-#include <memory>
-
-#include <gpd/candidate/antipodal.h>
-#include <gpd/candidate/finger_hand.h>
-#include <gpd/candidate/frame_estimator.h>
-#include <gpd/candidate/hand.h>
-#include <gpd/candidate/hand_geometry.h>
-#include <gpd/candidate/hand_set.h>
-#include <gpd/candidate/local_frame.h>
-#include <gpd/util/plot.h>
-#include <gpd/util/point_list.h>
+#include <iostream>
 
 /**
  *
@@ -70,18 +53,17 @@ class HandConstrain {
    * \brief Parameters for the hand constrian.
    */
   struct Parameters {
-    bool approach_constrained;             ///< on/off the limits on the hand Approach vector
-    std::vector<double> approach_limits;   ///< x, y, z limits of the hand Approach 3d vector
+    bool position_constrained;             ///< on/off the limit set on the hand position vector
+    std::vector<std::vector<double>> position_limits;   ///< x, y, z limits of the hand position 3d vector
 
-    bool binormal_constrained;             ///< on/off the limits on the hand Binormal vector
-    std::vector<double> binormal_limits;   ///< x, y, z limits of the hand Binormal 3d vector
+    bool approach_constrained;             ///< on/off the limit set on the hand Approach vector
+    std::vector<std::vector<double>> approach_limits;   ///< x, y, z limits of the hand Approach 3d vector
 
-    bool axis_constrained;                 ///< on/off the limits on the hand Axis vector
-    std::vector<double> axis_limits;       ///< x, y, z limits of the hand Axis 3d vector
+    bool binormal_constrained;             ///< on/off the limit set on the hand Binormal vector
+    std::vector<std::vector<double>> binormal_limits;   ///< x, y, z limits of the hand Binormal 3d vector
 
-    bool position_constrained;             ///< on/off the limits on the hand position vector
-    std::vector<double> position_limits;   ///< x, y, z limits of the hand position 3d vector
-
+    bool axis_constrained;                 ///< on/off the limit set on the hand Axis vector
+    std::vector<std::vector<double>> axis_limits;       ///< x, y, z limits of the hand Axis 3d vector
   };
 
   /**

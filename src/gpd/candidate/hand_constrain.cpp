@@ -1,18 +1,10 @@
 #include <gpd/candidate/hand_constrain.h>
 
-
 HandConstrain::HandConstrain(){
   params_.position_constrained = false;
-  params_.position_limits.assign(6, 0.0);
-
   params_.approach_constrained = false;
-  params_.approach_limits.assign(6, 0.0);
-
   params_.binormal_constrained = false;
-  params_.binormal_limits.assign(6, 0.0);
-
   params_.axis_constrained = false;
-  params_.axis_limits.assign(6, 0.0);
 }
 
 
@@ -40,11 +32,12 @@ HandConstrain::HandConstrain(std::string yaml_file)
           params_.position_constrained = true;
 
           unsigned short N_limits = cur_constrain_node["position_limits"].size();
-          params_.position_limits.clear();
+          std::vector<double> new_limit;
           for (unsigned short j = 0; j < N_limits; j++)
           {
-            params_.position_limits.push_back(cur_constrain_node["position_limits"].as<std::vector<double>>().at(j));
+            new_limit.push_back(cur_constrain_node["position_limits"].as<std::vector<double>>().at(j));
           }
+          params_.position_limits.push_back(new_limit);
           //std::cout << params_.approach_limits.size() << std::endl;
         }
 
@@ -53,11 +46,12 @@ HandConstrain::HandConstrain(std::string yaml_file)
           params_.approach_constrained = true;
 
           unsigned short N_limits = cur_constrain_node["approach_limits"].size();
-          params_.approach_limits.clear();
+          std::vector<double> new_limit;
           for (unsigned short j = 0; j < N_limits; j++)
           {
-            params_.approach_limits.push_back(cur_constrain_node["approach_limits"].as<std::vector<double>>().at(j));
+            new_limit.push_back(cur_constrain_node["approach_limits"].as<std::vector<double>>().at(j));
           }
+          params_.approach_limits.push_back(new_limit);
           //std::cout << params_.approach_limits.size() << std::endl;
         }
 
@@ -66,11 +60,12 @@ HandConstrain::HandConstrain(std::string yaml_file)
           params_.binormal_constrained = true;
 
           unsigned short N_limits = cur_constrain_node["binormal_limits"].size();
-          params_.binormal_limits.clear();
+          std::vector<double> new_limit;
           for (unsigned short j = 0; j < N_limits; j++)
           {
-            params_.binormal_limits.push_back(cur_constrain_node["binormal_limits"].as<std::vector<double>>().at(j));
+            new_limit.push_back(cur_constrain_node["binormal_limits"].as<std::vector<double>>().at(j));
           }
+          params_.binormal_limits.push_back(new_limit);
           //std::cout << params_.approach_limits.size() << std::endl;
         }
 
@@ -79,18 +74,19 @@ HandConstrain::HandConstrain(std::string yaml_file)
           params_.axis_constrained = true;
 
           unsigned short N_limits = cur_constrain_node["axis_limits"].size();
-          params_.axis_limits.clear();
+          std::vector<double> new_limit;
           for (unsigned short j = 0; j < N_limits; j++)
           {
-            params_.axis_limits.push_back(cur_constrain_node["axis_limits"].as<std::vector<double>>().at(j));
+            new_limit.push_back(cur_constrain_node["axis_limits"].as<std::vector<double>>().at(j));
           }
+          params_.axis_limits.push_back(new_limit);
           //std::cout << params_.approach_limits.size() << std::endl;
         }
       }
     }
   }
   else
-    cout << yaml_file << " does not exist\n";
+    std::cout << yaml_file << " does not exist\n";
 }
 
 
@@ -99,48 +95,80 @@ bool HandConstrain::is_hand_valid(const gpd::candidate::Hand &hand) const{
       params_.axis_constrained || params_.position_constrained ))
     return false;
 
+  if (params_.position_constrained)
+  {
+    Eigen::Vector3d hand_vector = hand.getPosition();
+
+    bool UNION_X_limits = false;
+    bool UNION_Y_limits = false;
+    bool UNION_Z_limits = false;
+    for(std::vector<std::vector<double>>::const_iterator it_lim = params_.position_limits.begin();
+        it_lim!= params_.position_limits.end(); it_lim++)
+    {
+      UNION_X_limits = UNION_X_limits || (hand_vector[0] >= (*it_lim)[0] && hand_vector[0] <= (*it_lim)[1]);
+      UNION_Y_limits = UNION_Y_limits || (hand_vector[1] >= (*it_lim)[2] && hand_vector[1] <= (*it_lim)[3]);
+      UNION_Z_limits = UNION_Z_limits || (hand_vector[2] >= (*it_lim)[4] && hand_vector[2] <= (*it_lim)[5]);
+    }
+
+    if ((UNION_X_limits && UNION_Y_limits && UNION_Z_limits) == false)
+      return false;
+  }
+
   if (params_.approach_constrained)
   {
-    Eigen::Vector3d hand_approach = hand.getApproach();
-    if (hand_approach[0] < params_.approach_limits[0] || hand_approach[0] > params_.approach_limits[1])
-        return false;
-    if (hand_approach[1] < params_.approach_limits[2] || hand_approach[1] > params_.approach_limits[3])
-        return false;
-    if (hand_approach[2] < params_.approach_limits[4] || hand_approach[2] > params_.approach_limits[5])
-        return false;
+    Eigen::Vector3d hand_vector = hand.getApproach();
+
+    bool UNION_X_limits = false;
+    bool UNION_Y_limits = false;
+    bool UNION_Z_limits = false;
+    for(std::vector<std::vector<double>>::const_iterator it_lim = params_.approach_limits.begin();
+        it_lim!= params_.approach_limits.end(); it_lim++)
+    {
+      UNION_X_limits = UNION_X_limits || (hand_vector[0] >= (*it_lim)[0] && hand_vector[0] <= (*it_lim)[1]);
+      UNION_Y_limits = UNION_Y_limits || (hand_vector[1] >= (*it_lim)[2] && hand_vector[1] <= (*it_lim)[3]);
+      UNION_Z_limits = UNION_Z_limits || (hand_vector[2] >= (*it_lim)[4] && hand_vector[2] <= (*it_lim)[5]);
+    }
+
+    if ((UNION_X_limits && UNION_Y_limits && UNION_Z_limits) == false)
+      return false;
   }
 
   if (params_.binormal_constrained)
   {
-    Eigen::Vector3d hand_binormal = hand.getBinormal();
-    if (hand_binormal[0] < params_.binormal_limits[0] || hand_binormal[0] > params_.binormal_limits[1])
-        return false;
-    if (hand_binormal[1] < params_.binormal_limits[2] || hand_binormal[1] > params_.binormal_limits[3])
-        return false;
-    if (hand_binormal[2] < params_.binormal_limits[4] || hand_binormal[2] > params_.binormal_limits[5])
-        return false;
+    Eigen::Vector3d hand_vector = hand.getBinormal();
+
+    bool UNION_X_limits = false;
+    bool UNION_Y_limits = false;
+    bool UNION_Z_limits = false;
+    for(std::vector<std::vector<double>>::const_iterator it_lim = params_.binormal_limits.begin();
+        it_lim!= params_.binormal_limits.end(); it_lim++)
+    {
+      UNION_X_limits = UNION_X_limits || (hand_vector[0] >= (*it_lim)[0] && hand_vector[0] <= (*it_lim)[1]);
+      UNION_Y_limits = UNION_Y_limits || (hand_vector[1] >= (*it_lim)[2] && hand_vector[1] <= (*it_lim)[3]);
+      UNION_Z_limits = UNION_Z_limits || (hand_vector[2] >= (*it_lim)[4] && hand_vector[2] <= (*it_lim)[5]);
+    }
+
+    if ((UNION_X_limits && UNION_Y_limits && UNION_Z_limits) == false)
+      return false;
   }
 
   if (params_.axis_constrained)
   {
-    Eigen::Vector3d hand_axis = hand.getAxis();
-    if (hand_axis[0] < params_.axis_limits[0] || hand_axis[0] > params_.axis_limits[1])
-        return false;
-    if (hand_axis[1] < params_.axis_limits[2] || hand_axis[1] > params_.axis_limits[3])
-        return false;
-    if (hand_axis[2] < params_.axis_limits[4] || hand_axis[2] > params_.axis_limits[5])
-        return false;
-  }
+    Eigen::Vector3d hand_vector = hand.getAxis();
 
-  if (params_.position_constrained)
-  {
-    Eigen::Vector3d hand_position = hand.getPosition();
-    if (hand_position[0] < params_.position_limits[0] || hand_position[0] > params_.position_limits[1])
-        return false;
-    if (hand_position[1] < params_.position_limits[2] || hand_position[1] > params_.position_limits[3])
-        return false;
-    if (hand_position[2] < params_.position_limits[4] || hand_position[2] > params_.position_limits[5])
-        return false;
+    bool UNION_X_limits = false;
+    bool UNION_Y_limits = false;
+    bool UNION_Z_limits = false;
+    for(std::vector<std::vector<double>>::const_iterator it_lim = params_.axis_limits.begin();
+        it_lim!= params_.axis_limits.end(); it_lim++)
+    {
+      UNION_X_limits = UNION_X_limits || (hand_vector[0] >= (*it_lim)[0] && hand_vector[0] <= (*it_lim)[1]);
+      UNION_Y_limits = UNION_Y_limits || (hand_vector[1] >= (*it_lim)[2] && hand_vector[1] <= (*it_lim)[3]);
+      UNION_Z_limits = UNION_Z_limits || (hand_vector[2] >= (*it_lim)[4] && hand_vector[2] <= (*it_lim)[5]);
+    }
+
+    if ((UNION_X_limits && UNION_Y_limits && UNION_Z_limits) == false)
+      return false;
   }
 
   return true;
@@ -161,28 +189,40 @@ void HandConstrain::print(){
     return;
   }*/
 
-  std::cout << "Position_limits[" << (params_.position_constrained? "true":"false") << "]" << std::endl;
-  std::cout << "[";
-  for (std::vector<double>::const_iterator it = params_.position_limits.begin(); it!= params_.position_limits.end(); it++)
-    std::cout <<" " << std::to_string(*it);
-  std::cout << " ]" << std::endl;
+  std::cout << "Position_limits: [" << (params_.position_constrained? "true":"false") << "]" << std::endl;
+  for (std::vector<std::vector<double>>::const_iterator it_lim = params_.position_limits.begin(); it_lim!= params_.position_limits.end(); it_lim++)
+  {
+    std::cout << "[";
+    for (std::vector<double>::const_iterator it_elem = (*it_lim).begin(); it_elem!= (*it_lim).end(); it_elem++)
+      std::cout <<" " << std::to_string(*it_elem);
+    std::cout << " ]" << std::endl;
+  }
 
-  std::cout << "Approach_limits[" << (params_.approach_constrained? "true":"false") << "]" << std::endl;
-  std::cout << "[";
-  for (std::vector<double>::const_iterator it = params_.approach_limits.begin(); it!= params_.approach_limits.end(); it++)
-    std::cout <<" " << std::to_string(*it);
-  std::cout << " ]" << std::endl;
+  std::cout << "Approach_limits: [" << (params_.approach_constrained? "true":"false") << "]" << std::endl;
+  for (std::vector<std::vector<double>>::const_iterator it_lim = params_.approach_limits.begin(); it_lim!= params_.approach_limits.end(); it_lim++)
+  {
+    std::cout << "[";
+    for (std::vector<double>::const_iterator it_elem = (*it_lim).begin(); it_elem!= (*it_lim).end(); it_elem++)
+      std::cout <<" " << std::to_string(*it_elem);
+    std::cout << " ]" << std::endl;
+  }
 
-  std::cout << "Binormal_limits[" << (params_.binormal_constrained? "true":"false") << "]" << std::endl;
-  std::cout << "[";
-  for (std::vector<double>::const_iterator it = params_.binormal_limits.begin(); it!= params_.binormal_limits.end(); it++)
-    std::cout <<" " << std::to_string(*it);
-  std::cout << " ]" << std::endl;
+  std::cout << "Binormal_limits: [" << (params_.binormal_constrained? "true":"false") << "]" << std::endl;
+  for (std::vector<std::vector<double>>::const_iterator it_lim = params_.binormal_limits.begin(); it_lim!= params_.binormal_limits.end(); it_lim++)
+  {
+    std::cout << "[";
+    for (std::vector<double>::const_iterator it_elem = (*it_lim).begin(); it_elem!= (*it_lim).end(); it_elem++)
+      std::cout <<" " << std::to_string(*it_elem);
+    std::cout << " ]" << std::endl;
+  }
 
-  std::cout << "Axis_limits[" << (params_.axis_constrained? "true":"false") << "]" << std::endl;
-  std::cout << "[";
-  for (std::vector<double>::const_iterator it = params_.axis_limits.begin(); it!= params_.axis_limits.end(); it++)
-    std::cout <<" " << std::to_string(*it);
-  std::cout << " ]" << std::endl;
+  std::cout << "Axis_limits: [" << (params_.axis_constrained? "true":"false") << "]" << std::endl;
+  for (std::vector<std::vector<double>>::const_iterator it_lim = params_.axis_limits.begin(); it_lim!= params_.axis_limits.end(); it_lim++)
+  {
+    std::cout << "[";
+    for (std::vector<double>::const_iterator it_elem = (*it_lim).begin(); it_elem!= (*it_lim).end(); it_elem++)
+      std::cout <<" " << std::to_string(*it_elem);
+    std::cout << " ]" << std::endl;
+  }
 
 }
