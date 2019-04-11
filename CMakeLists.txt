@@ -6,8 +6,8 @@ set(CMAKE_BUILD_TYPE Debug)
 include_directories(${EIGEN3_INCLUDE_DIR})
 
 # PCL
-find_package(PCL 1.9 REQUIRED)
-#find_package(PCL 1.7 REQUIRED)
+#find_package(PCL 1.9 REQUIRED)
+find_package(PCL 1.7 REQUIRED)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
@@ -22,6 +22,9 @@ set(CMAKE_CXX_FLAGS "-O3 -fopenmp -fPIC -Wno-deprecated -Wenum-compare -Wno-igno
 # set(CMAKE_CXX_FLAGS "-O3 -fopenmp -fPIC -Wno-deprecated -Wenum-compare")
 # set(CMAKE_CXX_FLAGS "-O3 -fopenmp -march=native -mfpmath=sse -funroll-loops -fPIC -Wno-deprecated -Wenum-compare") # no improvement
 # set(CMAKE_CXX_FLAGS "-frename-registers -Ofast -march=native -fopenmp -fPIC -Wno-deprecated -Wenum-compare") # no improvement
+
+find_package(yaml-cpp REQUIRED)
+
 
 ## Specify additional locations of header files
 include_directories(include ${PCL_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
@@ -109,6 +112,7 @@ add_library(${PROJECT_NAME}_hand_set src/${PROJECT_NAME}/candidate/hand_set.cpp)
 add_library(${PROJECT_NAME}_hand_geometry src/${PROJECT_NAME}/candidate/hand_geometry.cpp)
 add_library(${PROJECT_NAME}_hand_search src/${PROJECT_NAME}/candidate/hand_search.cpp)
 add_library(${PROJECT_NAME}_local_frame src/${PROJECT_NAME}/candidate/local_frame.cpp)
+add_library(${PROJECT_NAME}_hand_constrain src/${PROJECT_NAME}/candidate/hand_constrain.cpp)
 
 # namespace util
 add_library(${PROJECT_NAME}_cloud src/${PROJECT_NAME}/util/cloud.cpp)
@@ -135,7 +139,7 @@ add_executable(${PROJECT_NAME}_label_grasps src/label_grasps.cpp)
 add_executable(${PROJECT_NAME}_test_grasp_image src/tests/test_grasp_image.cpp)
 # add_executable(${PROJECT_NAME}_test_conv_layer src/tests/test_conv_layer.cpp)
 # add_executable(${PROJECT_NAME}_test_hdf5 src/tests/test_hdf5.cpp)
-
+add_executable(${PROJECT_NAME}_test_hand_constrain src/tests/test_hand_constrain.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_clustering
@@ -154,6 +158,9 @@ target_link_libraries(${PROJECT_NAME}_grasp_detector
 target_link_libraries(${PROJECT_NAME}_generate_candidates
   ${PROJECT_NAME}_config_file
 ${PROJECT_NAME}_candidates_generator)
+
+target_link_libraries(${PROJECT_NAME}_hand_constrain
+  yaml-cpp )
 
 # Linking for libraries
 target_link_libraries(${PROJECT_NAME}_antipodal
@@ -245,6 +252,12 @@ target_link_libraries(${PROJECT_NAME}_test_grasp_image
   ${PROJECT_NAME}_classifier
   ${PROJECT_NAME}_plot
   ${PROJECT_NAME}_candidates_generator
+${PCL_LIBRARIES})
+
+target_link_libraries(${PROJECT_NAME}_test_hand_constrain
+  ${PROJECT_NAME}_hand_constrain
+  ${PROJECT_NAME}_config_file
+  ${PROJECT_NAME}_hand_set
 ${PCL_LIBRARIES})
 
 target_link_libraries(${PROJECT_NAME}_detect_grasps

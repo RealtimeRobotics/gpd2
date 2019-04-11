@@ -1,9 +1,10 @@
 #include <gpd/candidate/hand_constrain.h>
 
-HandConstrain::HandConstrain(Parameters params)
-    : params_(params) {}
 
 HandConstrain::HandConstrain(){
+  params_.position_constrained = false;
+  params_.position_limits.assign(6, 0.0);
+
   params_.approach_constrained = false;
   params_.approach_limits.assign(6, 0.0);
 
@@ -12,49 +13,78 @@ HandConstrain::HandConstrain(){
 
   params_.axis_constrained = false;
   params_.axis_limits.assign(6, 0.0);
-
-  params_.position_constrained = false;
-  params_.position_limits.assign(6, 0.0);
 }
 
-HandConstrain::HandConstrain(std::string yaml_file):
-  HandConstrain(){
-  if (boost::filesystem::exists(yaml_file))    // does path p actually exist?
+
+HandConstrain::HandConstrain(Parameters params)
+    : params_(params) {}
+
+
+HandConstrain::HandConstrain(std::string yaml_file)
+  : HandConstrain()
+{
+  if (boost::filesystem::exists(yaml_file))
   {
     YAML::Node base_node = YAML::LoadFile(yaml_file);
     if(base_node["constrains"])
     {
       short int N_constrains = base_node["constrains"]["constrain_names"].size();
+      //std::cout << N_constrains << std::endl;
       for (unsigned short i = 0; i < N_constrains; ++i) {
         std::string cur_constrain_name = base_node["constrains"]["constrain_names"].as<std::vector<std::string>>().at(i);
-        YAML::Node cur_constrain_node = base_node[ cur_constrain_name ];
+        //std::cout << cur_constrain_name << std::endl;
+        YAML::Node cur_constrain_node = base_node["constrains"][ cur_constrain_name ];
+
+        if(cur_constrain_node["position_limits"])
+        {
+          params_.position_constrained = true;
+
+          unsigned short N_limits = cur_constrain_node["position_limits"].size();
+          params_.position_limits.clear();
+          for (unsigned short j = 0; j < N_limits; j++)
+          {
+            params_.position_limits.push_back(cur_constrain_node["position_limits"].as<std::vector<double>>().at(j));
+          }
+          //std::cout << params_.approach_limits.size() << std::endl;
+        }
 
         if(cur_constrain_node["approach_limits"])
         {
-          unsigned short totalFrames = cur_constrain_node["approach_limits"].size();
-          for (unsigned short f = 0; f < totalFrames; ++f)
-            params_.approach_limits.push_back(cur_constrain_node["approach_limits"].as<std::vector<double>>().at(f));
+          params_.approach_constrained = true;
+
+          unsigned short N_limits = cur_constrain_node["approach_limits"].size();
+          params_.approach_limits.clear();
+          for (unsigned short j = 0; j < N_limits; j++)
+          {
+            params_.approach_limits.push_back(cur_constrain_node["approach_limits"].as<std::vector<double>>().at(j));
+          }
+          //std::cout << params_.approach_limits.size() << std::endl;
         }
 
         if(cur_constrain_node["binormal_limits"])
         {
-          unsigned short totalFrames = cur_constrain_node["binormal_limits"].size();
-          for (unsigned short f = 0; f < totalFrames; ++f)
-            params_.binormal_limits.push_back(cur_constrain_node["binormal_limits"].as<std::vector<double>>().at(f));
+          params_.binormal_constrained = true;
+
+          unsigned short N_limits = cur_constrain_node["binormal_limits"].size();
+          params_.binormal_limits.clear();
+          for (unsigned short j = 0; j < N_limits; j++)
+          {
+            params_.binormal_limits.push_back(cur_constrain_node["binormal_limits"].as<std::vector<double>>().at(j));
+          }
+          //std::cout << params_.approach_limits.size() << std::endl;
         }
 
         if(cur_constrain_node["axis_limits"])
         {
-          unsigned short totalFrames = cur_constrain_node["axis_limits"].size();
-          for (unsigned short f = 0; f < totalFrames; ++f)
-            params_.axis_limits.push_back(cur_constrain_node["axis_limits"].as<std::vector<double>>().at(f));
-        }
+          params_.axis_constrained = true;
 
-        if(cur_constrain_node["approach_limits"])
-        {
-          unsigned short totalFrames = cur_constrain_node["position_limits"].size();
-          for (unsigned short f = 0; f < totalFrames; ++f)
-            params_.position_limits.push_back(cur_constrain_node["position_limits"].as<std::vector<double>>().at(f));
+          unsigned short N_limits = cur_constrain_node["axis_limits"].size();
+          params_.axis_limits.clear();
+          for (unsigned short j = 0; j < N_limits; j++)
+          {
+            params_.axis_limits.push_back(cur_constrain_node["axis_limits"].as<std::vector<double>>().at(j));
+          }
+          //std::cout << params_.approach_limits.size() << std::endl;
         }
       }
     }
@@ -116,18 +146,26 @@ bool HandConstrain::is_hand_valid(const gpd::candidate::Hand &hand) const{
   return true;
 }
 
+
 std::vector<double> HandConstrain::score_hand(const gpd::candidate::Hand &hand) const{
   std::vector<double> return_vect;
   return return_vect;
 }
 
+
 void HandConstrain::print(){
-  if (!(params_.approach_constrained || params_.binormal_constrained ||
+  /*if (!(params_.approach_constrained || params_.binormal_constrained ||
       params_.axis_constrained || params_.position_constrained ))
   {
     std::cout << "Empty constrain." << std::endl;
     return;
-  }
+  }*/
+
+  std::cout << "Position_limits[" << (params_.position_constrained? "true":"false") << "]" << std::endl;
+  std::cout << "[";
+  for (std::vector<double>::const_iterator it = params_.position_limits.begin(); it!= params_.position_limits.end(); it++)
+    std::cout <<" " << std::to_string(*it);
+  std::cout << " ]" << std::endl;
 
   std::cout << "Approach_limits[" << (params_.approach_constrained? "true":"false") << "]" << std::endl;
   std::cout << "[";
@@ -147,9 +185,4 @@ void HandConstrain::print(){
     std::cout <<" " << std::to_string(*it);
   std::cout << " ]" << std::endl;
 
-  std::cout << "Position_limits[" << (params_.position_constrained? "true":"false") << "]" << std::endl;
-  std::cout << "[";
-  for (std::vector<double>::const_iterator it = params_.position_limits.begin(); it!= params_.position_limits.end(); it++)
-    std::cout <<" " << std::to_string(*it);
-  std::cout << " ]" << std::endl;
 }

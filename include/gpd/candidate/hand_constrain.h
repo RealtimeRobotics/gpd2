@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Luca Colasanto
+ *  Copyright (c) 2019, Luca Colasanto
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
