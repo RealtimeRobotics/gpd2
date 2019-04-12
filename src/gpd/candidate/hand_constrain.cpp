@@ -15,7 +15,7 @@ HandConstrain::HandConstrain(Parameters params)
 HandConstrain::HandConstrain(std::string yaml_file)
   : HandConstrain()
 {
-  if (boost::filesystem::exists(yaml_file))
+  if (file_exists(yaml_file))
   {
     YAML::Node base_node = YAML::LoadFile(yaml_file);
     if(base_node["constrains"])
@@ -93,7 +93,7 @@ HandConstrain::HandConstrain(std::string yaml_file)
 bool HandConstrain::is_hand_valid(const gpd::candidate::Hand &hand) const{
   if (!(params_.approach_constrained || params_.binormal_constrained ||
       params_.axis_constrained || params_.position_constrained ))
-    return false;
+    return true;
 
   if (params_.position_constrained)
   {
@@ -224,5 +224,4 @@ void HandConstrain::print(){
       std::cout <<" " << std::to_string(*it_elem);
     std::cout << " ]" << std::endl;
   }
-
 }

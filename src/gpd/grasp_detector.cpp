@@ -88,6 +88,7 @@ GraspDetector::GraspDetector(const std::string& config_filename) {
       config_file.getValueOfKeyAsStdVectorDouble("direction", "1 0 0");
   hand_search_params.direction_ << approach[0], approach[1], approach[2];
   hand_search_params.thresh_rad_ = config_file.getValueOfKey<double>("thresh_rad", 2.3);
+  hand_search_params.hand_constrain_filename_ = config_file.getValueOfKeyAsString("hand_constrain_filename", "");
   candidates_generator_ = std::make_unique<candidate::CandidatesGenerator>(
       generator_params, hand_search_params);
 
@@ -114,6 +115,7 @@ GraspDetector::GraspDetector(const std::string& config_filename) {
          hand_search_params.deepen_hand_ ? "true" : "false");
   printf("friction_coeff: %3.2f\n", hand_search_params.friction_coeff_);
   printf("min_viable: %d\n", hand_search_params.min_viable_);
+  printf("hand_constrain_filename: %s\n", hand_search_params.hand_constrain_filename_.c_str());
   printf("==============================================\n");
 
   // TODO: Set the camera position.

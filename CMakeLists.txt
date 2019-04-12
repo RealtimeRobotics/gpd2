@@ -160,6 +160,7 @@ target_link_libraries(${PROJECT_NAME}_generate_candidates
 ${PROJECT_NAME}_candidates_generator)
 
 target_link_libraries(${PROJECT_NAME}_hand_constrain
+  ${PROJECT_NAME}_hand_set
   yaml-cpp )
 
 # Linking for libraries
@@ -197,6 +198,7 @@ target_link_libraries(${PROJECT_NAME}_hand_search
   ${PROJECT_NAME}_frame_estimator
   ${PROJECT_NAME}_hand_set
   ${PROJECT_NAME}_hand_geometry
+  ${PROJECT_NAME}_hand_constrain
   ${PROJECT_NAME}_plot)
 
 target_link_libraries(${PROJECT_NAME}_plot

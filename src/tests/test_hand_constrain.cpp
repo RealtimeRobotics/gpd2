@@ -122,7 +122,7 @@ int main(int argc, char* argv[]) {
   {
     cout << "Not enough arguments for this test." << endl;
     cout << "Run:" << endl;
-    cout << "./gpd_test_hand_constrain ../cfg/test_hand_consrains.yaml" << endl;
+    cout << "./gpd_test_hand_constrain ../cfg/test_hand_consrain.yaml" << endl;
     return 1;
   }
 

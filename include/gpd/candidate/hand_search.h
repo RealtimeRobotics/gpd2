@@ -53,6 +53,8 @@
 #include <gpd/util/plot.h>
 #include <gpd/util/point_list.h>
 
+#include <gpd/candidate/hand_constrain.h>
+
 namespace gpd {
 namespace candidate {
 
@@ -94,6 +96,8 @@ class HandSearch {
     int min_viable_;  ///< minimum number of points required to be antipodal
 
     HandGeometry hand_geometry_;  ///< robot hand geometry
+
+    std::string hand_constrain_filename_;
   };
 
   /**
@@ -200,6 +204,8 @@ class HandSearch {
   static const int ROTATION_AXIS_NORMAL;          ///< normal axis of LRF
   static const int ROTATION_AXIS_BINORMAL;        ///< binormal axis of LRF
   static const int ROTATION_AXIS_CURVATURE_AXIS;  ///< curvature axis of LRF
+
+  HandConstrain hand_constrain_;
 };
 
 }  // namespace candidate

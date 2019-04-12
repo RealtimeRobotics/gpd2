@@ -8,7 +8,7 @@ const int HandSearch::ROTATION_AXIS_BINORMAL = 1;
 const int HandSearch::ROTATION_AXIS_CURVATURE_AXIS = 2;
 
 HandSearch::HandSearch(Parameters params)
-    : params_(params), plots_local_axes_(false) {
+    : params_(params), plots_local_axes_(false){
   // Calculate radius for nearest neighbor search.
   const HandGeometry &hand_geom = params_.hand_geometry_;
   Eigen::Vector3d hand_dims;
@@ -19,6 +19,12 @@ HandSearch::HandSearch(Parameters params)
       std::make_unique<Antipodal>(params.friction_coeff_, params.min_viable_);
   plot_ = std::make_unique<util::Plot>(params_.hand_axes_.size(),
                                        params_.num_orientations_);
+
+  if (params.hand_constrain_filename_ != "")
+    hand_constrain_ = HandConstrain(params.hand_constrain_filename_);
+  else
+    hand_constrain_ = HandConstrain();
+  //hand_constrain_.print();
 }
 
 std::vector<std::unique_ptr<HandSet>> HandSearch::searchHands(
@@ -236,11 +242,7 @@ int HandSearch::labelHypothesis(const util::PointList &point_list,
 
 int HandSearch::labelHandApproach(const candidate::Hand &hand) const
 {
-  //hand.print();
-  Eigen::Vector3d hand_position = hand.getPosition();
-  Eigen::Vector3d hand_orientation = hand.getApproach();
-
-  if((hand_orientation[2]<=-0.97 && hand_position[2]>0) || (hand_orientation[2]>=0.97 && hand_position[2]<0))
+  if(hand_constrain_.is_hand_valid(hand))
     return 1;
 
   return 0;

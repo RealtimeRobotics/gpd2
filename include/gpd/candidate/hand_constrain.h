@@ -34,11 +34,23 @@
 
 #include <gpd/candidate/hand.h>
 
-#include <boost/filesystem.hpp>
 #include "yaml-cpp/yaml.h"
 #include <Eigen/Dense>
 
 #include <iostream>
+
+#include <sys/stat.h>
+
+
+/**
+ *
+ * \brief Utility function to quickly check if a file exists.
+ *
+ */
+inline bool file_exists(const std::string& name) {
+  struct stat buffer;
+  return (stat (name.c_str(), &buffer) == 0);
+}
 
 /**
  *
