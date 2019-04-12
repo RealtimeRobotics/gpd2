@@ -12,6 +12,7 @@ HandConstrain::HandConstrain(Parameters params)
     : params_(params) {}
 
 
+//TO DO: Add nan for values that should not be chacked
 HandConstrain::HandConstrain(std::string yaml_file)
   : HandConstrain()
 {

@@ -1,6 +1,7 @@
 ---
 constrains: 
-  constrain_names: [top, top_2, bottom]
+  constrain_names: [top, top_2, bottom] %active constrain
+  % all constrain [min_X, max_X, min_Y, max_Y, min_Z, max_Z] of the same type are in OR among eachother 
   top:
     approach_limits: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
     axis_limits: [7.0, 8.0, 9.0, 10.0, 11.0, 12.0]
@@ -10,4 +11,3 @@ constrains:
   bottom:
     binormal_limits: [14.0, 15.0, 16.0, 18.0, 19.0, 20.0]
     position_limits: [21.0, 22.0, 23.0, 24.0, 25.0, 26.0]
-version: 1.0
