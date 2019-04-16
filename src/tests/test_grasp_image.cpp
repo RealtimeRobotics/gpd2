@@ -16,7 +16,7 @@ namespace gpd {
 namespace test {
 namespace {
 
-int DoMain(int argc, char* argv[]) {
+int DoMain(int argc, char *argv[]) {
   if (argc < 4) {
     std::cout << "ERROR: Not enough arguments given!\n";
     std::cout << "Usage: rosrun gpd test_grasp_image INPUT_FILE SAMPLE_INDEX "
@@ -64,7 +64,7 @@ int DoMain(int argc, char* argv[]) {
   hand_search_params.num_samples_ = 1;
   hand_search_params.num_threads_ = 1;
   hand_search_params.nn_radius_frames_ = 0.01;
-  hand_search_params.num_orientations_ = 8;
+  hand_search_params.num_orientations_ = 1;
   hand_search_params.num_finger_placements_ = 10;
   hand_search_params.deepen_hand_ = true;
   hand_search_params.friction_coeff_ = 20.0;
@@ -132,7 +132,7 @@ int DoMain(int argc, char* argv[]) {
   plot.plotFingers3D(hand_set_list, cloud.getCloudProcessed(),
                      "Grasp candidates", hand_geom);
 
-  const candidate::Hand& hand = *hand_set_list[0]->getHands()[0];
+  const candidate::Hand &hand = *hand_set_list[0]->getHands()[0];
   std::cout << "sample: " << hand.getSample().transpose() << std::endl;
   std::cout << "grasp orientation:\n" << hand.getFrame() << std::endl;
   std::cout << "grasp position: " << hand.getPosition().transpose()
@@ -166,8 +166,8 @@ int DoMain(int argc, char* argv[]) {
   return 0;
 }
 
-}  // namespace
-}  // namespace test
-}  // namespace gpd
+} // namespace
+} // namespace test
+} // namespace gpd
 
-int main(int argc, char* argv[]) { return gpd::test::DoMain(argc, argv); }
+int main(int argc, char *argv[]) { return gpd::test::DoMain(argc, argv); }

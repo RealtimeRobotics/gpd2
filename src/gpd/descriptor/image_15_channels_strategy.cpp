@@ -3,10 +3,10 @@
 namespace gpd {
 namespace descriptor {
 
-std::vector<std::unique_ptr<cv::Mat>> Image15ChannelsStrategy::createImages(
-    const candidate::HandSet& hand_set,
-    const util::PointList& nn_points) const {
-  const std::vector<std::unique_ptr<candidate::Hand>>& hands =
+std::vector<std::unique_ptr<cv::Mat>>
+Image15ChannelsStrategy::createImages(const candidate::HandSet &hand_set,
+                                      const util::PointList &nn_points) const {
+  const std::vector<std::unique_ptr<candidate::Hand>> &hands =
       hand_set.getHands();
   std::vector<std::unique_ptr<cv::Mat>> images(hands.size());
 
@@ -24,10 +24,10 @@ std::vector<std::unique_ptr<cv::Mat>> Image15ChannelsStrategy::createImages(
   return images;
 }
 
-void Image15ChannelsStrategy::createImage(const util::PointList& point_list,
-                                          const candidate::Hand& hand,
-                                          const Eigen::Matrix3Xd& shadow,
-                                          cv::Mat& image) const {
+void Image15ChannelsStrategy::createImage(const util::PointList &point_list,
+                                          const candidate::Hand &hand,
+                                          const Eigen::Matrix3Xd &shadow,
+                                          cv::Mat &image) const {
   // 1. Transform points and normals in neighborhood into the unit image.
   Matrix3XdPair points_normals = transformToUnitImage(point_list, hand);
 
@@ -44,9 +44,10 @@ void Image15ChannelsStrategy::createImage(const util::PointList& point_list,
                          cropped_shadow_points);
 }
 
-cv::Mat Image15ChannelsStrategy::calculateImage(
-    const Eigen::Matrix3Xd& points, const Eigen::Matrix3Xd& normals,
-    const Eigen::Matrix3Xd& shadow) const {
+cv::Mat
+Image15ChannelsStrategy::calculateImage(const Eigen::Matrix3Xd &points,
+                                        const Eigen::Matrix3Xd &normals,
+                                        const Eigen::Matrix3Xd &shadow) const {
   double t = omp_get_wtime();
   const int kNumProjections = 3;
 
@@ -58,8 +59,8 @@ cv::Mat Image15ChannelsStrategy::calculateImage(
 
   for (size_t i = 0; i < kNumProjections; i++) {
     if (i > 0) {
-      points_proj.row(swap_indices[i][0]).swap(points.row(swap_indices[i][1]));
-      shadow_proj.row(swap_indices[i][0]).swap(shadow.row(swap_indices[i][1]));
+      points_proj.row(swap_indices[i][0]).swap(points_proj.row(swap_indices[i][1]));
+      shadow_proj.row(swap_indices[i][0]).swap(shadow_proj.row(swap_indices[i][1]));
     }
     std::vector<cv::Mat> channels_i =
         calculateChannels(points_proj, normals, shadow_proj);
@@ -82,8 +83,8 @@ cv::Mat Image15ChannelsStrategy::calculateImage(
 }
 
 std::vector<cv::Mat> Image15ChannelsStrategy::calculateChannels(
-    const Eigen::Matrix3Xd& points, const Eigen::Matrix3Xd& normals,
-    const Eigen::Matrix3Xd& shadow) const {
+    const Eigen::Matrix3Xd &points, const Eigen::Matrix3Xd &normals,
+    const Eigen::Matrix3Xd &shadow) const {
   std::vector<cv::Mat> channels(5);
 
   Eigen::VectorXi cell_indices = findCellIndices(points);
@@ -102,7 +103,7 @@ std::vector<cv::Mat> Image15ChannelsStrategy::calculateChannels(
   return channels;
 }
 
-void Image15ChannelsStrategy::showImage(const cv::Mat& image) const {
+void Image15ChannelsStrategy::showImage(const cv::Mat &image) const {
   int border = 5;
   int n = 3;
   int image_size = image_params_.size_;
@@ -138,5 +139,5 @@ void Image15ChannelsStrategy::showImage(const cv::Mat& image) const {
   cv::waitKey(0);
 }
 
-}  // namespace descriptor
-}  // namespace gpd
+} // namespace descriptor
+} // namespace gpd
