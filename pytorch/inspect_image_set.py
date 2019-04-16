@@ -25,22 +25,26 @@ def plot_image(img):
   cv2.waitKey(0)
   cv2.destroyAllWindows()
 
-def plot_image_set(img_set, title, subfig_prefix):
+def plot_image_set(img_set, title, ch_names):
   img_size = len(img_set)
   img_chanels = len(img_set[0][0])
 
   fig = plt.figure(figsize=(img_size, img_size))
   fig.text(0.5, 0.95, title, ha='center', fontsize=30)
-  columns = 3
-  rows = img_chanels // 3
-  if (img_chanels % 3 > 0):
+  columns = 4
+  rows = img_chanels // columns
+  if (img_chanels % columns > 0):
     rows += 1
 
   for i in range(0, img_chanels):
     #print i
     fig.add_subplot(rows, columns, i+1)
     plt.imshow(img_set[:,:,i], cmap='gray', vmin=0, vmax=255)
-    plt.title(subfig_prefix + str(i), fontsize=20)
+    if len(ch_names) ==0:
+      fig_title = 'ch_' + str(i)
+    else:
+      fig_title = str(ch_names[i]) + '[ch_' + str(i) + ']'
+    plt.title(fig_title, fontsize=20)
   plt.show(block=False)
   #cv2.waitKey(0)
   #cv2.destroyAllWindows()
@@ -113,6 +117,22 @@ if __name__ == '__main__':
   print "img size: " + str(len(imgs_[0][0]))
   print "number of channels per img: " + str(len(imgs_[0][0][0]))
 
+  if len(imgs_[0][0][0])==12:
+    channel_names=['avg_normal_X',
+                   'avg_normal_Y',
+                   'avg_normal_Z',
+                   'avg_depth',
+                   'avg_normal_X',
+                   'avg_normal_Y',
+                   'avg_normal_Z',
+                   'avg_depth',
+                   'avg_normal_X',
+                   'avg_normal_Y',
+                   'avg_normal_Z',
+                   'avg_depth']
+  else:
+    channel_names = []
+
 
 #Generating random indexes
   rnd_positive_indexes = []
@@ -131,13 +151,15 @@ if __name__ == '__main__':
   if plot_positive_selected_indexes_:
     for i in range(0, N_selected_indexes_):
       cur_index = rnd_positive_indexes[i]
-      plot_image_set(imgs_[cur_index],"POSITIVE GRASP ["+str(cur_index)+"]","channel_")
+      image_title = "POSITIVE GRASP ["+str(cur_index)+"]"
+      plot_image_set(imgs_[cur_index],image_title,channel_names)
       #print "is image_set[" + str(cur_index) + "] enpty: " + str(is_image_set_empty(imgs_[cur_index]))
 
   if plot_negative_selected_indexes_:
     for i in range(0, N_selected_indexes_):
       cur_index = rnd_negative_indexes[i]
-      plot_image_set(imgs_[cur_index],"NEGATIVE GRASP ["+str(cur_index)+"]","channel_")
+      image_title = "NEGITIVE GRASP [" + str(cur_index) + "]"
+      plot_image_set(imgs_[cur_index],image_title,channel_names)
       #print "is image_set[" + str(cur_index) + "] enpty: " + str(is_image_set_empty(imgs_[cur_index]))
 
   python2 = sys.version_info[0] == 2
