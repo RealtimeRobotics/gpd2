@@ -60,8 +60,8 @@ class Classifier {
    * \param device target device on which the network is run
    * \return the classifier
    */
-  static std::shared_ptr<Classifier> create(const std::string& model_file,
-                                            const std::string& weights_file,
+  static std::shared_ptr<Classifier> create(const std::string &model_file,
+                                            const std::string &weights_file,
                                             Device device = Device::eCPU,
                                             int batch_size = 1);
 
@@ -71,7 +71,7 @@ class Classifier {
    * \return the classified grasp candidates
    */
   virtual std::vector<float> classifyImages(
-      const std::vector<std::unique_ptr<cv::Mat>>& image_list) = 0;
+      const std::vector<std::unique_ptr<cv::Mat>> &image_list) = 0;
 
   /**
    * \brief Return the batch size.

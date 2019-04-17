@@ -451,12 +451,12 @@ void DataGenerator::createDatasetsHDF5(const std::string &filepath,
 
   const descriptor::ImageGeometry &image_geom = detector_->getImageGeometry();
   int n_dims_images = 4;
-  int dsdims_images[n_dims_images] = {num_data, image_geom.size_,
-                                      image_geom.size_, image_geom.num_channels_};
+  int dsdims_images[n_dims_images] = {
+      num_data, image_geom.size_, image_geom.size_, image_geom.num_channels_};
   int chunks_images[n_dims_images] = {chunk_size_, dsdims_images[1],
                                       dsdims_images[2], dsdims_images[3]};
   h5io->dscreate(n_dims_images, dsdims_images, CV_8UC1, IMAGES_DS_NAME,
-      n_dims_images, chunks_images);
+                 n_dims_images, chunks_images);
 
   h5io->close();
 }
@@ -746,7 +746,7 @@ void DataGenerator::copyMatrix(const cv::Mat &src, cv::Mat &dst, int idx_in,
     for (int k = 0; k < cols; k++) {
       for (int l = 0; l < channels; l++) {
         int idx_dst[4] = {idx_in, j, k, l};
-        dst.at<uchar>(idx_dst) = src.ptr<uchar>(j)[k*channels + l];
+        dst.at<uchar>(idx_dst) = src.ptr<uchar>(j)[k * channels + l];
       }
     }
   }

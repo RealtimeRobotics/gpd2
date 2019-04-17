@@ -63,7 +63,7 @@ class SequentialImportanceSampling {
    * \brief Constructor.
    * \param node ROS node handle
    */
-  SequentialImportanceSampling(const std::string& config_filename);
+  SequentialImportanceSampling(const std::string &config_filename);
 
   /**
    * \brief Detect grasps.
@@ -71,7 +71,7 @@ class SequentialImportanceSampling {
    * \return the list of grasps
    */
   std::vector<std::unique_ptr<candidate::Hand>> detectGrasps(
-      util::Cloud& cloud);
+      util::Cloud &cloud);
 
   /**
    * \brief Compare if two grasps are equal based on their position.
@@ -79,7 +79,7 @@ class SequentialImportanceSampling {
    * \param h2 the second grasp
    */
   struct compareGraspPositions {
-    bool operator()(const candidate::Hand& h1, const candidate::Hand& h2) {
+    bool operator()(const candidate::Hand &h1, const candidate::Hand &h2) {
       double position_thresh = 0.001;
       double approach_thresh = 0.99;
       return (h1.getApproach().dot(h2.getApproach()) < approach_thresh) &&
@@ -97,9 +97,9 @@ class SequentialImportanceSampling {
    * \return the samples drawn from the sum of Gaussians
    */
   void drawSamplesFromSumOfGaussians(
-      const std::vector<std::unique_ptr<candidate::HandSet>>& hand_sets,
-      Gaussian& generator, double sigma, int num_gauss_samples,
-      Eigen::Matrix3Xd& samples_out);
+      const std::vector<std::unique_ptr<candidate::HandSet>> &hand_sets,
+      Gaussian &generator, double sigma, int num_gauss_samples,
+      Eigen::Matrix3Xd &samples_out);
 
   /**
    * \brief Draw (x,y,z) grasp samples from max of Gaussians.
@@ -110,12 +110,12 @@ class SequentialImportanceSampling {
    * \return the samples drawn from the sum of Gaussians
    */
   void drawSamplesFromMaxOfGaussians(
-      const std::vector<std::unique_ptr<candidate::HandSet>>& hands,
-      Gaussian& generator, double sigma, int num_gauss_samples,
-      Eigen::Matrix3Xd& samples_out, double term);
+      const std::vector<std::unique_ptr<candidate::HandSet>> &hands,
+      Gaussian &generator, double sigma, int num_gauss_samples,
+      Eigen::Matrix3Xd &samples_out, double term);
 
-  void drawUniformSamples(const util::Cloud& cloud, int num_samples,
-                          int start_idx, Eigen::Matrix3Xd& samples);
+  void drawUniformSamples(const util::Cloud &cloud, int num_samples,
+                          int start_idx, Eigen::Matrix3Xd &samples);
 
   std::unique_ptr<GraspDetector> grasp_detector_;
   std::unique_ptr<Clustering> clustering_;

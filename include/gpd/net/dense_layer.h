@@ -62,7 +62,7 @@ class DenseLayer : public Layer {
    * \brief Forward pass.
    * \return output of forward pass
    */
-  Eigen::MatrixXf forward(const std::vector<float>& x) const;
+  Eigen::MatrixXf forward(const std::vector<float> &x) const;
 
  private:
   int num_units_;  ///< the number of units

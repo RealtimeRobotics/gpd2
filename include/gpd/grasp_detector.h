@@ -69,7 +69,7 @@ class GraspDetector {
    * \brief Constructor.
    * \param node ROS node handle
    */
-  GraspDetector(const std::string& config_filename);
+  GraspDetector(const std::string &config_filename);
 
   /**
    * \brief Detect grasps in a point cloud.
@@ -77,13 +77,13 @@ class GraspDetector {
    * \return list of grasps
    */
   std::vector<std::unique_ptr<candidate::Hand>> detectGrasps(
-      const util::Cloud& cloud);
+      const util::Cloud &cloud);
 
   /**
    * \brief Preprocess the point cloud.
    * \param cloud_cam the point cloud
    */
-  void preprocessPointCloud(util::Cloud& cloud);
+  void preprocessPointCloud(util::Cloud &cloud);
 
   /**
    * Filter grasps based on the robot's workspace.
@@ -93,8 +93,19 @@ class GraspDetector {
    * \return list of grasps after filtering
    */
   std::vector<std::unique_ptr<candidate::HandSet>> filterGraspsWorkspace(
-      std::vector<std::unique_ptr<candidate::HandSet>>& hand_set_list,
-      const std::vector<double>& workspace) const;
+      std::vector<std::unique_ptr<candidate::HandSet>> &hand_set_list,
+      const std::vector<double> &workspace) const;
+
+  /**
+   * Filter grasps based on their approach direction.
+   * \param hand_set_list list of grasp candidate sets
+   * \param direction the direction used for filtering
+   * \param thresh_rad the angle in radians above which grasps are filtered
+   * \return list of grasps after filtering
+   */
+  std::vector<std::unique_ptr<candidate::HandSet>> filterGraspsDirection(
+      std::vector<std::unique_ptr<candidate::HandSet>> &hand_set_list,
+      const Eigen::Vector3d &direction, const double thresh_rad);
 
   /**
    * \brief Generate grasp candidates.
@@ -102,7 +113,7 @@ class GraspDetector {
    * \return the list of grasp candidates
    */
   std::vector<std::unique_ptr<candidate::HandSet>> generateGraspCandidates(
-      const util::Cloud& cloud);
+      const util::Cloud &cloud);
 
   /**
    * \brief Create grasp images and candidates for a given point cloud.
@@ -112,9 +123,9 @@ class GraspDetector {
    * \return `false` if no grasp candidates are found, `true` otherwise
    */
   bool createGraspImages(
-      util::Cloud& cloud,
-      std::vector<std::unique_ptr<candidate::Hand>>& hands_out,
-      std::vector<std::unique_ptr<cv::Mat>>& images_out);
+      util::Cloud &cloud,
+      std::vector<std::unique_ptr<candidate::Hand>> &hands_out,
+      std::vector<std::unique_ptr<cv::Mat>> &images_out);
 
   /**
    * \brief Evaluate the ground truth for a given list of grasps.
@@ -123,8 +134,8 @@ class GraspDetector {
    * \return the ground truth label for each grasp
    */
   std::vector<int> evalGroundTruth(
-      const util::Cloud& cloud_gt,
-      std::vector<std::unique_ptr<candidate::Hand>>& hands);
+      const util::Cloud &cloud_gt,
+      std::vector<std::unique_ptr<candidate::Hand>> &hands);
 
   /**
    * \brief Creates grasp images and prunes grasps below a given score.
@@ -134,8 +145,8 @@ class GraspDetector {
    * \return the grasps above the score
    */
   std::vector<std::unique_ptr<candidate::Hand>> pruneGraspCandidates(
-      const util::Cloud& cloud,
-      const std::vector<std::unique_ptr<candidate::HandSet>>& hand_set_list,
+      const util::Cloud &cloud,
+      const std::vector<std::unique_ptr<candidate::HandSet>> &hand_set_list,
       double min_score);
 
   /**
@@ -144,7 +155,7 @@ class GraspDetector {
    * \return the k highest scoring grasps
    */
   std::vector<std::unique_ptr<candidate::Hand>> selectGrasps(
-      std::vector<std::unique_ptr<candidate::Hand>>& hands) const;
+      std::vector<std::unique_ptr<candidate::Hand>> &hands) const;
 
   /**
    * \brief Compare the scores of two given grasps.
@@ -153,8 +164,8 @@ class GraspDetector {
    * \return `true` if \param hand1 has a larger score than \param hand2,
    * `false` otherwise
    */
-  static bool isScoreGreater(const std::unique_ptr<candidate::Hand>& hand1,
-                             const std::unique_ptr<candidate::Hand>& hand2) {
+  static bool isScoreGreater(const std::unique_ptr<candidate::Hand> &hand1,
+                             const std::unique_ptr<candidate::Hand> &hand2) {
     return hand1->getScore() > hand2->getScore();
   }
 
@@ -162,7 +173,7 @@ class GraspDetector {
    * \brief Return the hand search parameters.
    * \return the hand search parameters
    */
-  const candidate::HandSearch::Parameters& getHandSearchParameters() {
+  const candidate::HandSearch::Parameters &getHandSearchParameters() {
     return candidates_generator_->getHandSearchParams();
   }
 
@@ -170,15 +181,15 @@ class GraspDetector {
    * \brief Return the image geometry parameters.
    * \return the image geometry parameters
    */
-  const descriptor::ImageGeometry& getImageGeometry() const {
+  const descriptor::ImageGeometry &getImageGeometry() const {
     return image_generator_->getImageGeometry();
   }
 
  private:
-  void printStdVector(const std::vector<int>& v, const std::string& name) const;
+  void printStdVector(const std::vector<int> &v, const std::string &name) const;
 
-  void printStdVector(const std::vector<double>& v,
-                      const std::string& name) const;
+  void printStdVector(const std::vector<double> &v,
+                      const std::string &name) const;
 
   std::unique_ptr<candidate::CandidatesGenerator> candidates_generator_;
   std::unique_ptr<descriptor::ImageGenerator> image_generator_;

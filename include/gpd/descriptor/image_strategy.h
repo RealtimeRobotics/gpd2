@@ -65,7 +65,7 @@ class ImageStrategy {
    * \return the strategy for calculating grasp images
    */
   static std::unique_ptr<ImageStrategy> makeImageStrategy(
-      const ImageGeometry& image_params, int num_threads, int num_orientations,
+      const ImageGeometry &image_params, int num_threads, int num_orientations,
       bool is_plotting);
 
   /**
@@ -76,7 +76,7 @@ class ImageStrategy {
    * \param is_plotting if the images are visualized
    * \return the strategy for calculating grasp images
    */
-  ImageStrategy(const ImageGeometry& image_params, int num_threads,
+  ImageStrategy(const ImageGeometry &image_params, int num_threads,
                 int num_orientations, bool is_plotting)
       : image_params_(image_params),
         num_orientations_(num_orientations),
@@ -92,14 +92,14 @@ class ImageStrategy {
    * \return the grasp images
    */
   virtual std::vector<std::unique_ptr<cv::Mat>> createImages(
-      const candidate::HandSet& hand_set,
-      const util::PointList& nn_points) const = 0;
+      const candidate::HandSet &hand_set,
+      const util::PointList &nn_points) const = 0;
 
   /**
    * \brief Return the grasp image parameters.
    * \return the grasp image parameters
    */
-  const ImageGeometry& getImageParameters() const { return image_params_; }
+  const ImageGeometry &getImageParameters() const { return image_params_; }
 
  protected:
   /**
@@ -108,8 +108,8 @@ class ImageStrategy {
    * \param hand the grasp
    * \return the transformed points and their surface normals
    */
-  Matrix3XdPair transformToUnitImage(const util::PointList& point_list,
-                                     const candidate::Hand& hand) const;
+  Matrix3XdPair transformToUnitImage(const util::PointList &point_list,
+                                     const candidate::Hand &hand) const;
 
   /**
    * \brief Find points that lie in the closing region of the robot hand.
@@ -117,8 +117,8 @@ class ImageStrategy {
    * \param points the points to be checked
    * \return the indices of the points that lie inside the closing region
    */
-  std::vector<int> findPointsInUnitImage(const candidate::Hand& hand,
-                                         const Eigen::Matrix3Xd& points) const;
+  std::vector<int> findPointsInUnitImage(const candidate::Hand &hand,
+                                         const Eigen::Matrix3Xd &points) const;
 
   /**
    * \brief Transform points to the unit image.
@@ -128,8 +128,8 @@ class ImageStrategy {
    * \return the transformed points
    */
   Eigen::Matrix3Xd transformPointsToUnitImage(
-      const candidate::Hand& hand, const Eigen::Matrix3Xd& points,
-      const std::vector<int>& indices) const;
+      const candidate::Hand &hand, const Eigen::Matrix3Xd &points,
+      const std::vector<int> &indices) const;
 
   /**
    * \brief Find the indices of the pixels that are occupied by a given list of
@@ -137,7 +137,7 @@ class ImageStrategy {
    * \param points the points
    * \return the indices occupied by the points
    */
-  Eigen::VectorXi findCellIndices(const Eigen::Matrix3Xd& points) const;
+  Eigen::VectorXi findCellIndices(const Eigen::Matrix3Xd &points) const;
 
   /**
    * \brief Create a binary image based on which pixels are occupied by the
@@ -145,7 +145,7 @@ class ImageStrategy {
    * \param cell_indices the indices of the points in the image
    * \return the image
    */
-  cv::Mat createBinaryImage(const Eigen::VectorXi& cell_indices) const;
+  cv::Mat createBinaryImage(const Eigen::VectorXi &cell_indices) const;
 
   /**
    * \brief Create an RGB image based on the surface normals of the points.
@@ -153,8 +153,8 @@ class ImageStrategy {
    * \param cell_indices the indices of the points in the image
    * \return the image
    */
-  cv::Mat createNormalsImage(const Eigen::Matrix3Xd& normals,
-                             const Eigen::VectorXi& cell_indices) const;
+  cv::Mat createNormalsImage(const Eigen::Matrix3Xd &normals,
+                             const Eigen::VectorXi &cell_indices) const;
 
   /**
    * \brief Create a grey value image based on the depth value of the points.
@@ -162,8 +162,8 @@ class ImageStrategy {
    * \param cell_indices the indices of the points in the image
    * \return the image
    */
-  cv::Mat createDepthImage(const Eigen::Matrix3Xd& points,
-                           const Eigen::VectorXi& cell_indices) const;
+  cv::Mat createDepthImage(const Eigen::Matrix3Xd &points,
+                           const Eigen::VectorXi &cell_indices) const;
 
   /**
    * \brief Create a grey value image based on the depth of the shadow points.
@@ -171,8 +171,8 @@ class ImageStrategy {
    * \param cell_indices the indices of the shadow points in the image
    * \return the image
    */
-  cv::Mat createShadowImage(const Eigen::Matrix3Xd& points,
-                            const Eigen::VectorXi& cell_indices) const;
+  cv::Mat createShadowImage(const Eigen::Matrix3Xd &points,
+                            const Eigen::VectorXi &cell_indices) const;
 
   ImageGeometry image_params_;  ///< grasp image parameters
   int num_orientations_;        ///< number of hand orientations
@@ -185,7 +185,7 @@ class ImageStrategy {
    * \param a the floating point vector
    * \return the vector containing the integers
    */
-  Eigen::VectorXi floorVector(const Eigen::VectorXd& a) const;
+  Eigen::VectorXi floorVector(const Eigen::VectorXd &a) const;
 };
 
 }  // namespace descriptor

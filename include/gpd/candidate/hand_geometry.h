@@ -69,7 +69,7 @@ class HandGeometry {
    * parameters of the robot hand.
    * \param filepath the filepath to the configuration file
    */
-  HandGeometry(const std::string& filepath);
+  HandGeometry(const std::string &filepath);
 
   double finger_width_;    ///< the width of the robot fingers
   double outer_diameter_;  ///< the width of the robot hand including fingers
@@ -78,8 +78,8 @@ class HandGeometry {
   double init_bite_;  ///< the minimum object depth to be covered by the fingers
 };
 
-std::ostream& operator<<(std::ostream& stream,
-                         const HandGeometry& hand_geometry);
+std::ostream &operator<<(std::ostream &stream,
+                         const HandGeometry &hand_geometry);
 
 }  // namespace candidate
 }  // namespace gpd

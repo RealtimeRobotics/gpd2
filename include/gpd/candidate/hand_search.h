@@ -112,7 +112,7 @@ class HandSearch {
    * \return list of grasp candidate sets
    */
   std::vector<std::unique_ptr<candidate::HandSet>> searchHands(
-      const util::Cloud& cloud) const;
+      const util::Cloud &cloud) const;
 
   /**
    * \brief Reevaluate a list of grasp candidates.
@@ -122,21 +122,21 @@ class HandSearch {
    * \return the list of reevaluated grasp candidates
    */
   std::vector<int> reevaluateHypotheses(
-      const util::Cloud& cloud_cam,
-      std::vector<std::unique_ptr<candidate::Hand>>& grasps,
+      const util::Cloud &cloud_cam,
+      std::vector<std::unique_ptr<candidate::Hand>> &grasps,
       bool plot_samples = false) const;
 
   /**
    * \brief Return the parameters for the hand search.
    * \return params the hand search parameters
    */
-  const Parameters& getParams() const { return params_; }
+  const Parameters &getParams() const { return params_; }
 
   /**
    * \brief Set the parameters for the hand search.
    * \param params the parameters
    */
-  void setParameters(const Parameters& params) { params_ = params; }
+  void setParameters(const Parameters &params) { params_ = params; }
 
  private:
   /**
@@ -148,9 +148,9 @@ class HandSearch {
    * \return the list of robot hand configurations
    */
   std::vector<std::unique_ptr<candidate::HandSet>> evalHands(
-      const util::Cloud& cloud_cam,
-      const std::vector<candidate::LocalFrame>& frames,
-      const pcl::KdTreeFLANN<pcl::PointXYZRGBA>& kdtree) const;
+      const util::Cloud &cloud_cam,
+      const std::vector<candidate::LocalFrame> &frames,
+      const pcl::KdTreeFLANN<pcl::PointXYZRGBA> &kdtree) const;
 
   /**
    * \brief Reevaluate a grasp candidate.
@@ -161,10 +161,10 @@ class HandSearch {
    * \param point_list_cropped the point neigborhood transformed into the hand
    * frame
    */
-  bool reevaluateHypothesis(const util::PointList& point_list,
-                            const candidate::Hand& hand,
-                            FingerHand& finger_hand,
-                            util::PointList& point_list_cropped) const;
+  bool reevaluateHypothesis(const util::PointList &point_list,
+                            const candidate::Hand &hand,
+                            FingerHand &finger_hand,
+                            util::PointList &point_list_cropped) const;
 
   /**
    * \brief Calculate the label for a grasp candidate.
@@ -173,8 +173,8 @@ class HandSearch {
    * placement
    * \return the label
    */
-  int labelHypothesis(const util::PointList& point_list,
-                      FingerHand& finger_hand) const;
+  int labelHypothesis(const util::PointList &point_list,
+                      FingerHand &finger_hand) const;
 
   /**
    * \brief Check hand grasp pose
@@ -188,7 +188,7 @@ class HandSearch {
    * \param v the Eigen vector
    * \reutrn the pcl point
    */
-  pcl::PointXYZRGBA eigenVectorToPcl(const Eigen::Vector3d& v) const;
+  pcl::PointXYZRGBA eigenVectorToPcl(const Eigen::Vector3d &v) const;
 
   Parameters params_;  ///< parameters for the hand search
 

@@ -3,7 +3,7 @@
 namespace gpd {
 namespace net {
 
-Eigen::MatrixXf DenseLayer::forward(const std::vector<float>& x) const {
+Eigen::MatrixXf DenseLayer::forward(const std::vector<float> &x) const {
   Eigen::Map<const Eigen::MatrixXf> W(weights_.data(), num_units_, x.size());
   Eigen::Map<const Eigen::VectorXf> b(biases_.data(), biases_.size());
   Eigen::Map<const Eigen::VectorXf> X(x.data(), x.size());

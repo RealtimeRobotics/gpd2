@@ -76,7 +76,7 @@ class FingerHand {
    * \param idx if this is larger than -1, only check the <idx>-th finger
    * placement
    */
-  void evaluateFingers(const Eigen::Matrix3Xd& points, double bite,
+  void evaluateFingers(const Eigen::Matrix3Xd &points, double bite,
                        int idx = -1);
 
   /**
@@ -96,7 +96,7 @@ class FingerHand {
    * object
    * \return the index of the middle finger placement
    */
-  int deepenHand(const Eigen::Matrix3Xd& points, double min_depth,
+  int deepenHand(const Eigen::Matrix3Xd &points, double min_depth,
                  double max_depth);
 
   /**
@@ -107,7 +107,7 @@ class FingerHand {
    * placement
    * \return the points that are located in the closing region
    */
-  std::vector<int> computePointsInClosingRegion(const Eigen::Matrix3Xd& points,
+  std::vector<int> computePointsInClosingRegion(const Eigen::Matrix3Xd &points,
                                                 int idx = -1);
 
   /**
@@ -131,13 +131,13 @@ class FingerHand {
    * \brief Return the finger placement evaluations.
    * \return the hand configuration evaluations
    */
-  const Eigen::Array<bool, 1, Eigen::Dynamic>& getHand() const { return hand_; }
+  const Eigen::Array<bool, 1, Eigen::Dynamic> &getHand() const { return hand_; }
 
   /**
    * \brief Return the finger placement evaluations.
    * \return the hand configuration evaluations
    */
-  const Eigen::Array<bool, 1, Eigen::Dynamic>& getFingers() const {
+  const Eigen::Array<bool, 1, Eigen::Dynamic> &getFingers() const {
     return fingers_;
   }
 
@@ -245,8 +245,8 @@ class FingerHand {
    * \param idx the index of the finger to be checked
    * \return true if it does not collide, false if it collides
    */
-  bool isGapFree(const Eigen::Matrix3Xd& points,
-                 const std::vector<int>& indices, int idx);
+  bool isGapFree(const Eigen::Matrix3Xd &points,
+                 const std::vector<int> &indices, int idx);
 
   int forward_axis_;  ///< the index of the horizontal axis in the hand frame
                       ///(grasp approach direction)

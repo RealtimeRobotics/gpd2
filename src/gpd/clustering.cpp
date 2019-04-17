@@ -3,7 +3,7 @@
 namespace gpd {
 
 std::vector<std::unique_ptr<candidate::Hand>> Clustering::findClusters(
-    const std::vector<std::unique_ptr<candidate::Hand>>& hand_list,
+    const std::vector<std::unique_ptr<candidate::Hand>> &hand_list,
     bool remove_inliers) {
   // const double AXIS_ALIGN_ANGLE_THRESH = 15.0 * M_PI/180.0;
   const double AXIS_ALIGN_ANGLE_THRESH = 12.0 * M_PI / 180.0;

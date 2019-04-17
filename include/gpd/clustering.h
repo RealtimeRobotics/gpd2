@@ -65,7 +65,7 @@ class Clustering {
    * for the next cluster
    */
   std::vector<std::unique_ptr<candidate::Hand>> findClusters(
-      const std::vector<std::unique_ptr<candidate::Hand>>& hand_list,
+      const std::vector<std::unique_ptr<candidate::Hand>> &hand_list,
       bool remove_inliers = false);
 
   /**

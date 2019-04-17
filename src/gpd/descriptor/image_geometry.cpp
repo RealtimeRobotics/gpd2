@@ -18,7 +18,7 @@ ImageGeometry::ImageGeometry(double outer_diameter, double depth, double height,
       size_(size),
       num_channels_(num_channels) {}
 
-ImageGeometry::ImageGeometry(const std::string& filepath) {
+ImageGeometry::ImageGeometry(const std::string &filepath) {
   util::ConfigFile config_file(filepath);
   config_file.ExtractKeys();
   outer_diameter_ = config_file.getValueOfKey<double>("volume_width", 0.10);
@@ -28,8 +28,8 @@ ImageGeometry::ImageGeometry(const std::string& filepath) {
   num_channels_ = config_file.getValueOfKey<int>("image_num_channels", 15);
 }
 
-std::ostream& operator<<(std::ostream& stream,
-                         const ImageGeometry& image_geometry) {
+std::ostream &operator<<(std::ostream &stream,
+                         const ImageGeometry &image_geometry) {
   stream << "============ GRASP IMAGE GEOMETRY ===============\n";
   stream << "volume width: " << image_geometry.outer_diameter_ << "\n";
   stream << "volume depth: " << image_geometry.depth_ << "\n";

@@ -83,14 +83,14 @@ class CandidatesGenerator {
    * \param params the parameters to be used for the candidate generation
    * \param hand_search_params the parameters to be used for the hand search
    */
-  CandidatesGenerator(const Parameters& params,
-                      const HandSearch::Parameters& hand_search_params);
+  CandidatesGenerator(const Parameters &params,
+                      const HandSearch::Parameters &hand_search_params);
 
   /**
    * \brief Preprocess the point cloud.
    * \param cloud_cam the point cloud
    */
-  void preprocessPointCloud(util::Cloud& cloud);
+  void preprocessPointCloud(util::Cloud &cloud);
 
   /**
    * \brief Generate grasp candidates given a point cloud.
@@ -98,7 +98,7 @@ class CandidatesGenerator {
    * \return list of grasp candidates
    */
   std::vector<std::unique_ptr<Hand>> generateGraspCandidates(
-      const util::Cloud& cloud_cam);
+      const util::Cloud &cloud_cam);
 
   /**
    * \brief Generate grasp candidate sets given a point cloud.
@@ -106,7 +106,7 @@ class CandidatesGenerator {
    * \return lust of grasp candidate sets
    */
   std::vector<std::unique_ptr<HandSet>> generateGraspCandidateSets(
-      const util::Cloud& cloud_cam);
+      const util::Cloud &cloud_cam);
 
   /**
    * \brief Reevaluate grasp candidates on a given point cloud.
@@ -114,7 +114,7 @@ class CandidatesGenerator {
    * \param grasps the grasps to evaluate
    */
   std::vector<int> reevaluateHypotheses(
-      const util::Cloud& cloud, std::vector<std::unique_ptr<Hand>>& grasps);
+      const util::Cloud &cloud, std::vector<std::unique_ptr<Hand>> &grasps);
 
   /**
    * \brief Set the number of samples.
@@ -126,7 +126,7 @@ class CandidatesGenerator {
    * \brief Return the hand search parameters.
    * \return the hand search parameters
    */
-  const HandSearch::Parameters& getHandSearchParams() const {
+  const HandSearch::Parameters &getHandSearchParams() const {
     return hand_search_->getParams();
   }
 

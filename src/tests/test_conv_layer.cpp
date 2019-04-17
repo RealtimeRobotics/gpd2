@@ -6,7 +6,7 @@ namespace gpd {
 namespace test {
 namespace {
 
-int DoMain(int argc, char* argv[]) {
+int DoMain(int argc, char *argv[]) {
   // Create example input, weights, bias.
   Eigen::MatrixXf X(5, 5);
   Eigen::MatrixXf W(3, 3);
@@ -43,4 +43,4 @@ int DoMain(int argc, char* argv[]) {
 }  // namespace test
 }  // namespace gpd
 
-int main(int argc, char* argv[]) { return gpd::test::DoMain(argc, argv); }
+int main(int argc, char *argv[]) { return gpd::test::DoMain(argc, argv); }

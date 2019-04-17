@@ -65,8 +65,8 @@ class CaffeClassifier : public Classifier {
    * \param weights_file the location of the file that contains the network
    * weights
    */
-  CaffeClassifier(const std::string& model_file,
-                  const std::string& weights_file, Classifier::Device device,
+  CaffeClassifier(const std::string &model_file,
+                  const std::string &weights_file, Classifier::Device device,
                   int batch_size);
 
   /**
@@ -75,7 +75,7 @@ class CaffeClassifier : public Classifier {
    * \return the classified grasp candidates
    */
   std::vector<float> classifyImages(
-      const std::vector<std::unique_ptr<cv::Mat>>& image_list);
+      const std::vector<std::unique_ptr<cv::Mat>> &image_list);
 
   /**
    * \brief Return the batch size.

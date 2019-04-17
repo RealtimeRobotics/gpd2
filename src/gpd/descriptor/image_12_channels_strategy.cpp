@@ -4,9 +4,9 @@ namespace gpd {
 namespace descriptor {
 
 std::vector<std::unique_ptr<cv::Mat>> Image12ChannelsStrategy::createImages(
-    const candidate::HandSet& hand_set,
-    const util::PointList& nn_points) const {
-  const std::vector<std::unique_ptr<candidate::Hand>>& hands =
+    const candidate::HandSet &hand_set,
+    const util::PointList &nn_points) const {
+  const std::vector<std::unique_ptr<candidate::Hand>> &hands =
       hand_set.getHands();
   std::vector<std::unique_ptr<cv::Mat>> images(hands.size());
 
@@ -22,9 +22,9 @@ std::vector<std::unique_ptr<cv::Mat>> Image12ChannelsStrategy::createImages(
   return images;
 }
 
-void Image12ChannelsStrategy::createImage(const util::PointList& point_list,
-                                          const candidate::Hand& hand,
-                                          cv::Mat& image) const {
+void Image12ChannelsStrategy::createImage(const util::PointList &point_list,
+                                          const candidate::Hand &hand,
+                                          cv::Mat &image) const {
   // 1. Transform points and normals in neighborhood into the unit image.
   Matrix3XdPair points_normals = transformToUnitImage(point_list, hand);
 
@@ -33,7 +33,7 @@ void Image12ChannelsStrategy::createImage(const util::PointList& point_list,
 }
 
 cv::Mat Image12ChannelsStrategy::calculateImage(
-    const Eigen::Matrix3Xd& points, const Eigen::Matrix3Xd& normals) const {
+    const Eigen::Matrix3Xd &points, const Eigen::Matrix3Xd &normals) const {
   double t = omp_get_wtime();
   const int kNumProjections = 3;
 
@@ -41,11 +41,14 @@ cv::Mat Image12ChannelsStrategy::calculateImage(
 
   Eigen::Matrix3Xd points_proj = points;
   int swap_indices[3][2] = {{-1, -1}, {0, 2}, {1, 2}};
+  // int swap_indices[3][2] = {{-1, -1}, {0, 2}, {0, 1}};
 
   for (size_t i = 0; i < kNumProjections; i++) {
     if (i > 0) {
-      points_proj.row(swap_indices[i][0]).swap(points.row(swap_indices[i][1]));
+      points_proj.row(swap_indices[i][0])
+          .swap(points_proj.row(swap_indices[i][1]));
     }
+
     std::vector<cv::Mat> channels_i = calculateChannels(points_proj, normals);
     for (size_t j = 0; j < channels_i.size(); j++) {
       channels[i * 4 + j] = channels_i[j];
@@ -66,7 +69,7 @@ cv::Mat Image12ChannelsStrategy::calculateImage(
 }
 
 std::vector<cv::Mat> Image12ChannelsStrategy::calculateChannels(
-    const Eigen::Matrix3Xd& points, const Eigen::Matrix3Xd& normals) const {
+    const Eigen::Matrix3Xd &points, const Eigen::Matrix3Xd &normals) const {
   std::vector<cv::Mat> channels(4);
 
   Eigen::VectorXi cell_indices = findCellIndices(points);
@@ -82,7 +85,7 @@ std::vector<cv::Mat> Image12ChannelsStrategy::calculateChannels(
   return channels;
 }
 
-void Image12ChannelsStrategy::showImage(const cv::Mat& image) const {
+void Image12ChannelsStrategy::showImage(const cv::Mat &image) const {
   int border = 5;
   int n = 3;  // number of images in each row
   int m = 2;  // number of images in each column

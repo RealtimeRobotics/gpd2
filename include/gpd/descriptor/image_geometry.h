@@ -74,7 +74,7 @@ class ImageGeometry {
    * parameters of the grasp image.
    * \param filepath the filepath to the configuration file
    */
-  ImageGeometry(const std::string& filepath);
+  ImageGeometry(const std::string &filepath);
 
   double outer_diameter_;  ///< the width of the volume
   double depth_;           ///< the depth of the volume
@@ -83,8 +83,8 @@ class ImageGeometry {
   int num_channels_;  ///< the number of channels in the image
 };
 
-std::ostream& operator<<(std::ostream& stream,
-                         const ImageGeometry& hand_geometry);
+std::ostream &operator<<(std::ostream &stream,
+                         const ImageGeometry &hand_geometry);
 
 }  // namespace descriptor
 }  // namespace gpd

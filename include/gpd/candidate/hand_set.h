@@ -66,7 +66,7 @@
 namespace boost {
 template <>
 struct hash<Eigen::Vector3i> {
-  inline size_t operator()(Eigen::Vector3i const& v) const {
+  inline size_t operator()(Eigen::Vector3i const &v) const {
     std::size_t seed = 0;
 
     for (int i = 0; i < v.size(); i++) {
@@ -82,8 +82,8 @@ namespace gpd {
 namespace candidate {
 
 struct Vector3iEqual {
-  inline bool operator()(const Eigen::Vector3i& a,
-                         const Eigen::Vector3i& b) const {
+  inline bool operator()(const Eigen::Vector3i &a,
+                         const Eigen::Vector3i &b) const {
     return a(0) == b(0) && a(1) == b(1) && a(2) == b(2);
   }
 };
@@ -122,19 +122,17 @@ class HandSet {
    * \param num_finger_placements the number of finger placements
    * \param deepen_hand if the hand is pushed forward onto the object
    */
-  HandSet(const HandGeometry& hand_geometry, const Eigen::VectorXd& angles,
-          const std::vector<int>& hand_axes, int num_finger_placements,
-          bool deepen_hand, bool filter_approach_direction,
-          const Eigen::Vector3d& direction, double thresh_rad,
-          Antipodal& antipodal);
+  HandSet(const HandGeometry &hand_geometry, const Eigen::VectorXd &angles,
+          const std::vector<int> &hand_axes, int num_finger_placements,
+          bool deepen_hand, Antipodal &antipodal);
 
   /**
    * \brief Calculate a set of grasp candidates given a local reference frame.
    * \param point_list the point neighborhood
    * \param local_frame the local reference frame
    */
-  void evalHandSet(const util::PointList& point_list,
-                   const LocalFrame& local_frame);
+  void evalHandSet(const util::PointList &point_list,
+                   const LocalFrame &local_frame);
 
   /**
    * \brief Calculate grasp candidates for a given rotation axis.
@@ -143,53 +141,53 @@ class HandSet {
    * \param axis the index of the rotation axis
    * \param start the index of the first free element in `hands_`
    */
-  void evalHands(const util::PointList& point_list,
-                 const LocalFrame& local_frame, int axis, int start);
+  void evalHands(const util::PointList &point_list,
+                 const LocalFrame &local_frame, int axis, int start);
 
   /**
    * \brief Calculate the "shadow" of the point neighborhood.
    * \param point_list the point neighborhood
    * \param shadow_length the length of the shadow
    */
-  Eigen::Matrix3Xd calculateShadow(const util::PointList& point_list,
+  Eigen::Matrix3Xd calculateShadow(const util::PointList &point_list,
                                    double shadow_length) const;
 
   /**
    * \brief Return the grasps contained in this grasp set.
    * \return the grasps contained in this grasp set
    */
-  const std::vector<std::unique_ptr<Hand>>& getHands() const { return hands_; }
+  const std::vector<std::unique_ptr<Hand>> &getHands() const { return hands_; }
 
   /**
    * \brief Return the grasps contained in this grasp set (mutable).
    * \return the grasps contained in this grasp set
    */
-  std::vector<std::unique_ptr<Hand>>& getHands() { return hands_; }
+  std::vector<std::unique_ptr<Hand>> &getHands() { return hands_; }
 
   /**
    * \brief Return the center of the point neighborhood.
    * \return the center of the point neighborhood
    */
-  const Eigen::Vector3d& getSample() const { return sample_; }
+  const Eigen::Vector3d &getSample() const { return sample_; }
 
   /**
    * \brief Return the local reference frame.
    * \return the local reference frame (3 x 3 rotation matrix)
    */
-  const Eigen::Matrix3d& getFrame() const { return frame_; }
+  const Eigen::Matrix3d &getFrame() const { return frame_; }
 
   /**
    * \brief Set the center of the point neighborhood.
    * \param sample the center of the point neighborhood
    */
-  void setSample(const Eigen::Vector3d& sample) { sample_ = sample; }
+  void setSample(const Eigen::Vector3d &sample) { sample_ = sample; }
 
   /**
    * \brief Return a list of booleans that indicate for each grasp if it is
    * valid or not.
    * \return the list of booleans
    */
-  const Eigen::Array<bool, 1, Eigen::Dynamic>& getIsValid() const {
+  const Eigen::Array<bool, 1, Eigen::Dynamic> &getIsValid() const {
     return is_valid_;
   }
 
@@ -198,7 +196,7 @@ class HandSet {
    * \param isValid the list of booleans which indicate if each grasp is valid
    * or not
    */
-  void setIsValid(const Eigen::Array<bool, 1, Eigen::Dynamic>& isValid) {
+  void setIsValid(const Eigen::Array<bool, 1, Eigen::Dynamic> &isValid) {
     is_valid_ = isValid;
   }
 
@@ -219,11 +217,11 @@ class HandSet {
    * \param[in] voxel_grid_size the size of the voxel grid
    * \param[out] shadow_set the set of shadow points
    */
-  void calculateVoxelizedShadowVectorized(const Eigen::Matrix3Xd& points,
-                                          const Eigen::Vector3d& shadow_vec,
+  void calculateVoxelizedShadowVectorized(const Eigen::Matrix3Xd &points,
+                                          const Eigen::Vector3d &shadow_vec,
                                           int num_shadow_points,
                                           double voxel_grid_size,
-                                          Vector3iSet& shadow_set) const;
+                                          Vector3iSet &shadow_set) const;
 
   /**
    * \brief Create a grasp candidate.
@@ -235,17 +233,17 @@ class HandSet {
    * placements
    * \return the grasp
    */
-  Hand createHypothesis(const Eigen::Vector3d& sample,
-                        const util::PointList& point_list,
-                        const std::vector<int>& indices_learning,
-                        const Eigen::Matrix3d& hand_frame,
-                        const FingerHand& finger_hand) const;
+  Hand createHypothesis(const Eigen::Vector3d &sample,
+                        const util::PointList &point_list,
+                        const std::vector<int> &indices_learning,
+                        const Eigen::Matrix3d &hand_frame,
+                        const FingerHand &finger_hand) const;
 
-  void modifyCandidate(Hand& hand, const Eigen::Vector3d& sample,
-                       const util::PointList& point_list,
-                       const std::vector<int>& indices_learning,
-                       const Eigen::Matrix3d& hand_frame,
-                       const FingerHand& finger_hand) const;
+  void modifyCandidate(Hand &hand, const Eigen::Vector3d &sample,
+                       const util::PointList &point_list,
+                       const std::vector<int> &indices_learning,
+                       const Eigen::Matrix3d &hand_frame,
+                       const FingerHand &finger_hand) const;
 
   /**
    * \brief Label a grasp candidate as a viable grasp or not.
@@ -254,8 +252,8 @@ class HandSet {
    * placements
    * \param hand the grasp
    */
-  void labelHypothesis(const util::PointList& point_list,
-                       const FingerHand& finger_hand, Hand& hand) const;
+  void labelHypothesis(const util::PointList &point_list,
+                       const FingerHand &finger_hand, Hand &hand) const;
 
   /**
    * \brief Convert shadow voxels to shadow points.
@@ -264,7 +262,7 @@ class HandSet {
    * \return the shadow points
    */
   Eigen::Matrix3Xd shadowVoxelsToPoints(
-      const std::vector<Eigen::Vector3i>& voxels, double voxel_grid_size) const;
+      const std::vector<Eigen::Vector3i> &voxels, double voxel_grid_size) const;
 
   /**
    * \brief Calculate the intersection of two shadows.
@@ -272,8 +270,8 @@ class HandSet {
    * \param set2 the second shadow
    * \return the intersection
    */
-  Vector3iSet intersection(const Vector3iSet& set1,
-                           const Vector3iSet& set2) const;
+  Vector3iSet intersection(const Vector3iSet &set1,
+                           const Vector3iSet &set2) const;
 
   /**
    * \brief Generate a random integer.
@@ -302,7 +300,7 @@ class HandSet {
   std::vector<int> hand_axes_;  ///< the axes about which the hand frame is
                                 /// rotated to evaluate different orientations
 
-  Antipodal& antipodal_;
+  Antipodal &antipodal_;
 
   static int seed_;  ///< seed for the random generator in fastrand()
 

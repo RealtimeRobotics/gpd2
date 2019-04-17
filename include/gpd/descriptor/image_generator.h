@@ -79,7 +79,7 @@ class ImageGenerator {
    * \param remove_plane if the support/table plane is removed before
    * calculating images
    */
-  ImageGenerator(const descriptor::ImageGeometry& image_geometry,
+  ImageGenerator(const descriptor::ImageGeometry &image_geometry,
                  int num_threads, int num_orientations, bool is_plotting,
                  bool remove_plane);
 
@@ -90,16 +90,16 @@ class ImageGenerator {
    * \return the list of grasp images
    */
   void createImages(
-      const util::Cloud& cloud_cam,
-      const std::vector<std::unique_ptr<candidate::HandSet>>& hand_set_list,
-      std::vector<std::unique_ptr<cv::Mat>>& images_out,
-      std::vector<std::unique_ptr<candidate::Hand>>& hands_out) const;
+      const util::Cloud &cloud_cam,
+      const std::vector<std::unique_ptr<candidate::HandSet>> &hand_set_list,
+      std::vector<std::unique_ptr<cv::Mat>> &images_out,
+      std::vector<std::unique_ptr<candidate::Hand>> &hands_out) const;
 
   /**
    * \brief Return the parameters of the grasp image.
    * \return the grasp image parameters
    */
-  const descriptor::ImageGeometry& getImageGeometry() const {
+  const descriptor::ImageGeometry &getImageGeometry() const {
     return image_params_;
   }
 
@@ -111,14 +111,14 @@ class ImageGenerator {
    * \param cloud the cloud
    * \param point_list the list of points corresponding to the cloud
    */
-  void removePlane(const util::Cloud& cloud_cam,
-                   util::PointList& point_list) const;
+  void removePlane(const util::Cloud &cloud_cam,
+                   util::PointList &point_list) const;
 
   void createImageList(
-      const std::vector<std::unique_ptr<candidate::HandSet>>& hand_set_list,
-      const std::vector<util::PointList>& nn_points_list,
-      std::vector<std::unique_ptr<cv::Mat>>& images_out,
-      std::vector<std::unique_ptr<candidate::Hand>>& hands_out) const;
+      const std::vector<std::unique_ptr<candidate::HandSet>> &hand_set_list,
+      const std::vector<util::PointList> &nn_points_list,
+      std::vector<std::unique_ptr<cv::Mat>> &images_out,
+      std::vector<std::unique_ptr<candidate::Hand>> &hands_out) const;
 
   int num_threads_;
   int num_orientations_;

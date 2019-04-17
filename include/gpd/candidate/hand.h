@@ -93,8 +93,8 @@ class Hand {
    * placement
    * \param width the opening width of the robot hand
    */
-  Hand(const Eigen::Vector3d& sample, const Eigen::Matrix3d& frame,
-       const FingerHand& finger_hand, double width);
+  Hand(const Eigen::Vector3d &sample, const Eigen::Matrix3d &frame,
+       const FingerHand &finger_hand, double width);
 
   /**
    * \brief Constructor.
@@ -104,23 +104,23 @@ class Hand {
    * \param finger_hand the FingerHand object describing a feasible finger
    * placement
    */
-  Hand(const Eigen::Vector3d& sample, const Eigen::Matrix3d& frame,
-       const FingerHand& finger_hand);
+  Hand(const Eigen::Vector3d &sample, const Eigen::Matrix3d &frame,
+       const FingerHand &finger_hand);
 
   /**
    * \brief Set properties of the grasp.
    * \param finger_hand the FingerHand object describing a feasible finger
    * placement
    */
-  void construct(const FingerHand& finger_hand);
+  void construct(const FingerHand &finger_hand);
 
   /**
    * \brief Write a list of grasps to a file.
    * \param filename location of the file
    * \param hands the list of grasps
    */
-  void writeHandsToFile(const std::string& filename,
-                        const std::vector<Hand>& hands) const;
+  void writeHandsToFile(const std::string &filename,
+                        const std::vector<Hand> &hands) const;
 
   /**
    * \brief Print a description of the grasp candidate to the systen's standard
@@ -156,13 +156,13 @@ class Hand {
    * \brief Return the position of the grasp.
    * \return the grasp position
    */
-  const Eigen::Vector3d& getPosition() const { return position_; }
+  const Eigen::Vector3d &getPosition() const { return position_; }
 
   /**
    * \brief Return the orientation of the grasp.
    * \return the grasp orientation (rotation matrix)
    */
-  const Eigen::Matrix3d& getOrientation() const { return orientation_; }
+  const Eigen::Matrix3d &getOrientation() const { return orientation_; }
 
   /**
    * \brief Return the width of the object contained in the grasp.
@@ -198,7 +198,7 @@ class Hand {
    * \brief Set the position of the grasp.
    * \param position the grasp position
    */
-  void setPosition(const Eigen::Vector3d& position) { position_ = position; }
+  void setPosition(const Eigen::Vector3d &position) { position_ = position; }
 
   /**
    * \brief Get the score of the grasp.
@@ -217,13 +217,13 @@ class Hand {
    * grasp.
    * \return the center
    */
-  const Eigen::Vector3d& getSample() const { return sample_; }
+  const Eigen::Vector3d &getSample() const { return sample_; }
 
   /**
    * \brief Return the grasp orientation.
    * \return the orientation of the grasp as a rotation matrix
    */
-  const Eigen::Matrix3d& getFrame() const { return orientation_; }
+  const Eigen::Matrix3d &getFrame() const { return orientation_; }
 
   /**
    * \brief Return the center coordinate of the hand closing region along the
@@ -255,14 +255,14 @@ class Hand {
    * \param finger_hand the FingerHand object describing a feasible finger
    * placement
    */
-  void calculateGraspPositions(const FingerHand& finger_hand);
+  void calculateGraspPositions(const FingerHand &finger_hand);
 
   /**
    * \brief Convert an Eigen vector to a string.
    * \param v the vector
    * \return the string
    */
-  std::string vectorToString(const Eigen::VectorXd& v) const;
+  std::string vectorToString(const Eigen::VectorXd &v) const;
 
   Eigen::Vector3d position_;  ///< grasp position (bottom center of robot hand)
   Eigen::Matrix3d orientation_;  ///< grasp orientation (rotation of robot hand)

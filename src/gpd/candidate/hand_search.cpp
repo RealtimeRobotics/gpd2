@@ -185,8 +185,7 @@ std::vector<std::unique_ptr<candidate::HandSet>> HandSearch::evalHands(
     hand_set_list[i] = std::make_unique<HandSet>(
         params_.hand_geometry_, angles, params_.hand_axes_,
         params_.num_finger_placements_, params_.deepen_hand_,
-        params_.filter_approach_direction_, params_.direction_,
-        params_.thresh_rad_, *antipodal_);
+        *antipodal_);
 
     if (kdtree.radiusSearch(sample, nn_radius_, nn_indices, nn_dists) > 0) {
       nn_points = point_list.slice(nn_indices);

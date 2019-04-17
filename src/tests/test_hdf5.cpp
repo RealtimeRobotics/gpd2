@@ -60,7 +60,7 @@ static void write_multiple_channels() {
   // prepare data
   Mat data(2, 3, CV_32SC2);
   for (size_t i = 0; i < data.total() * data.channels(); i++)
-    ((int*)data.data)[i] = (int)i;
+    ((int *)data.data)[i] = (int)i;
   Ptr<hdf::HDF5> h5io = hdf::open(filename);
   // first we need to create the parent group
   if (!h5io->hlexists(parent_name)) h5io->grcreate(parent_name);
@@ -77,7 +77,7 @@ static void write_multiple_channels() {
   h5io->close();
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
   write_root_group_single_channel();
   write_single_channel();
   write_multiple_channels();

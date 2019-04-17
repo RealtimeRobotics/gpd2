@@ -67,7 +67,7 @@ class Antipodal {
    * \return 0 if it's not antipodal, 1 if one finger is antipodal, 2 if the
    * grasp is antipodal
    */
-  int evaluateGrasp(const util::PointList& point_list, double extremal_thresh,
+  int evaluateGrasp(const util::PointList &point_list, double extremal_thresh,
                     int lateral_axis = 0, int forward_axis = 1,
                     int vertical_axis = 2) const;
 
@@ -78,7 +78,7 @@ class Antipodal {
    * \param thresh_half the threshold to consider the grasp half-antipodal
    * \param thresh_full the threshold to conisder the grasp full-antipodal
    */
-  int evaluateGrasp(const Eigen::Matrix3Xd& normals, double thresh_half,
+  int evaluateGrasp(const Eigen::Matrix3Xd &normals, double thresh_half,
                     double thresh_full) const;
 
   double friction_coeff_;  ///< angle of friction cone in degrees

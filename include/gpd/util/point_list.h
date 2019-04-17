@@ -68,9 +68,9 @@ class PointList {
    * \param cam_source the camera source for each point (k x n)
    * \param view_points the origins of the cameras that saw the points (3 x k)
    */
-  PointList(const Eigen::Matrix3Xd& points, const Eigen::Matrix3Xd& normals,
-            const Eigen::MatrixXi& cam_source,
-            const Eigen::Matrix3Xd& view_points)
+  PointList(const Eigen::Matrix3Xd &points, const Eigen::Matrix3Xd &normals,
+            const Eigen::MatrixXi &cam_source,
+            const Eigen::Matrix3Xd &view_points)
       : points_(points),
         normals_(normals),
         cam_source_(cam_source),
@@ -88,7 +88,7 @@ class PointList {
    * \param indices the indices to be sliced
    * \return the point list containing the points given by the indices
    */
-  PointList slice(const std::vector<int>& indices) const;
+  PointList slice(const std::vector<int> &indices) const;
 
   /**
    * \brief Transform a point list to a robot hand frame.
@@ -96,15 +96,15 @@ class PointList {
    * \param rotation the orientation of the frame (3 x 3 rotation matrix)
    * \return the point list transformed into the hand frame
    */
-  PointList transformToHandFrame(const Eigen::Vector3d& centroid,
-                                 const Eigen::Matrix3d& rotation) const;
+  PointList transformToHandFrame(const Eigen::Vector3d &centroid,
+                                 const Eigen::Matrix3d &rotation) const;
 
   /**
    * \brief Rotate a point list.
    * \param rotation the 3 x 3 rotation matrix
    * \return the rotated point list
    */
-  PointList rotatePointList(const Eigen::Matrix3d& rotation) const;
+  PointList rotatePointList(const Eigen::Matrix3d &rotation) const;
 
   /**
    * \brief Crop the points by the height of the robot hand.
@@ -117,13 +117,13 @@ class PointList {
    * \brief Return the camera source matrix.
    * \return the camera source matrix (size: k x n)
    */
-  const Eigen::MatrixXi& getCamSource() const { return cam_source_; }
+  const Eigen::MatrixXi &getCamSource() const { return cam_source_; }
 
   /**
    * \brief Set the camera source matrix.
    * \param cam_source the camera source matrix (size: k x n)
    */
-  void setCamSource(const Eigen::MatrixXi& cam_source) {
+  void setCamSource(const Eigen::MatrixXi &cam_source) {
     cam_source_ = cam_source;
   }
 
@@ -131,25 +131,25 @@ class PointList {
    * \brief Return the surface normals.
    * \return the surface normals (size: 3 x n)
    */
-  const Eigen::Matrix3Xd& getNormals() const { return normals_; }
+  const Eigen::Matrix3Xd &getNormals() const { return normals_; }
 
   /**
    * \brief Set the surface normals.
    * \param normals the surface normals (size: 3 x n)
    */
-  void setNormals(const Eigen::Matrix3Xd& normals) { normals_ = normals; }
+  void setNormals(const Eigen::Matrix3Xd &normals) { normals_ = normals; }
 
   /**
    * \brief Return the points.
    * \return the points (size: 3 x n)
    */
-  const Eigen::Matrix3Xd& getPoints() const { return points_; }
+  const Eigen::Matrix3Xd &getPoints() const { return points_; }
 
   /**
    * \brief Set the points.
    * \param points the points (size: 3 x n)
    */
-  void setPoints(const Eigen::Matrix3Xd& points) { points_ = points; }
+  void setPoints(const Eigen::Matrix3Xd &points) { points_ = points; }
 
   /**
    * \brief Return the size of the list.
@@ -161,13 +161,13 @@ class PointList {
    * \brief Return the view points of the cameras.
    * \return the view points (size: 3 x k)
    */
-  const Eigen::Matrix3Xd& getViewPoints() const { return view_points_; }
+  const Eigen::Matrix3Xd &getViewPoints() const { return view_points_; }
 
   /**
    * \brief Set the view points of the cameras.
    * \param points the view points (size: 3 x k)
    */
-  void setViewPoints(const Eigen::Matrix3Xd& view_points) {
+  void setViewPoints(const Eigen::Matrix3Xd &view_points) {
     view_points_ = view_points;
   }
 

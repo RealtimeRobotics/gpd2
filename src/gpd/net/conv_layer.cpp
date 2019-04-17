@@ -23,7 +23,7 @@ ConvLayer::ConvLayer(int width, int height, int depth, int num_filters,
   W_row_c = spatial_extent * spatial_extent * d1;
 }
 
-Eigen::MatrixXf ConvLayer::forward(const std::vector<float>& x) const {
+Eigen::MatrixXf ConvLayer::forward(const std::vector<float> &x) const {
   // Convert input image to matrix where each column is an image patch.
   std::vector<float> x_col_vec;
   x_col_vec.resize(X_col_r * X_col_c);
@@ -45,9 +45,9 @@ Eigen::MatrixXf ConvLayer::forward(const std::vector<float>& x) const {
   return H;
 }
 
-Eigen::MatrixXf ConvLayer::forward(const Eigen::MatrixXf& W,
-                                   const Eigen::VectorXf& b,
-                                   const Eigen::MatrixXf& X) const {
+Eigen::MatrixXf ConvLayer::forward(const Eigen::MatrixXf &W,
+                                   const Eigen::VectorXf &b,
+                                   const Eigen::MatrixXf &X) const {
   Eigen::MatrixXf B = b.replicate(1, X.cols());
 
   // Calculate the forward pass.
@@ -59,11 +59,11 @@ bool ConvLayer::is_a_ge_zero_and_a_lt_b(int a, int b) const {
   return a >= 0 && a < b;
 }
 
-void ConvLayer::imageToColumns(const float* data_im, const int channels,
+void ConvLayer::imageToColumns(const float *data_im, const int channels,
                                const int height, const int width,
                                const int num_kernels, const int kernel_h,
                                const int kernel_w, const int stride_h,
-                               const int stride_w, float* data_col) const {
+                               const int stride_w, float *data_col) const {
   const int output_h = (height - kernel_h) / stride_h + 1;
   const int output_w = (width - kernel_w) / stride_w + 1;
   const int channel_size = height * width;
