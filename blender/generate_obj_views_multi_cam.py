@@ -16,6 +16,10 @@ import subprocess
 
 from math import pi
 
+import mathutils
+import math
+
+
 def random_3D_unit_vector():
     """
     Generates a random 3D unit vector (direction) with a uniform spherical distribution
@@ -57,6 +61,29 @@ def colored_random_3D_unit_vector(phi_limits = [0,np.pi*2], theta_limits = [np.p
     y = np.sin( theta) * np.sin( phi )
     z = np.cos( theta )
     return [x,y,z]
+
+def random_rotation_vector(vector, theta):
+    
+    # generate random axis perpendivular to vector:
+    vector_ver = mathutils.Vector((vector[0], vector[1], vector[2]))
+    vector_ver = vector_ver.normalized()
+    #print("vector_ver: ", vector_ver) 
+    
+    [axis_x, axis_y, axis_z] = random_3D_unit_vector()
+    axis = mathutils.Vector((axis_x, axis_y, axis_z))
+    axis = vector_ver.cross(axis) # perpendibular to vector
+    #print("axis: ", axis)
+    
+    # compute correspondint rot matrix
+    mat_rot = mathutils.Matrix.Rotation(theta, 4, axis)
+    #print("mat_rot: ", mat_rot)
+    
+    # rotate vector
+    new_vector = mathutils.Vector((vector[0], vector[1], vector[2]))
+    new_vector.rotate(mat_rot)
+    #print("new_vector: ", new_vector)
+
+    return [new_vector[0], new_vector[1], new_vector[2]]
 
 def reset_blend():
 #    bpy.ops.wm.read_factory_settings()
@@ -165,31 +192,39 @@ def export_scene(file_name):
                              axis_up='Z')
 
 
-def loop(camera_distance_from_object, random_view_N, pc_resolution, pcd_file_prefix):
+def loop(camera_distance_from_object, angle_between_cameras, random_view_N, pc_resolution, pcd_file_prefix):
     view_infos = [] 
     for i in range(random_view_N):
         print("VIEW[",i+1,"]----------------------------------------------------------")
         bpy.ops.object.select_all(action='DESELECT')
-        camera_versor = colored_random_3D_unit_vector(phi_limits = X_Y_angle_limits, theta_limits = Z_angle_limits)
-        #theta = np.random.uniform(0,np.pi*2)
-        #print("(x,w,z,theta): ", x, y, z, theta)    
-        camera_position = [x * camera_distance_from_object for x in camera_versor]
-        print("camera position: ", camera_position[0], camera_position[1], camera_position[2])
+
+        cam1_versor = random_3D_unit_vector()
+        cam1_position = [x * camera_distance_from_object for x in cam1_versor]
+                
+        cam2_versor = random_rotation_vector(cam1_versor, angle_between_cameras)
+        cam2_position = [x * camera_distance_from_object for x in cam2_versor]
+        print("cam1_position: ", cam1_position[0], cam1_position[1], cam1_position[2])
+        print("cam2_position: ", cam2_position[0], cam2_position[1], cam2_position[2])
+                
+        pcd1_file = pcd_file_prefix + str(i+1) + "a.pcd"
+        pcd2_file = pcd_file_prefix + str(i+1) + "b.pcd"
+        print("pcd1_file: " + pcd1_file)
+        print("pcd2_file: " + pcd2_file)
         
-        pcd_file = pcd_file_prefix + str(i+1) + ".pcd"
-        print("pcd_file: " + pcd_file)
+        curr_view_1_info = generate_view(cam1_position, pc_resolution, pcd1_file)
+        curr_view_2_info = generate_view(cam2_position, pc_resolution, pcd2_file)
         
-        curr_view_info = generate_view(camera_position, pc_resolution, pcd_file)
+        generatere_cfg_file(curr_view_1_info)
+        generatere_cfg_file(curr_view_2_info)
         
-        generatere_cfg_file(curr_view_info)
-        
-        view_infos.append(curr_view_info)        
+        view_infos.append(curr_view_1_info)
+        view_infos.append(curr_view_2_info) 
     return view_infos
        
                
 def visualize_view_infos(view_infos, random_view_N = 1):
     bpy.ops.object.select_all(action='DESELECT')
-    for i in range(random_view_N):
+    for i in range(random_view_N*2):
         bpy.ops.mesh.primitive_cone_add(radius1=0.1, radius2=0, depth=0.2, view_align=False, enter_editmode=False, location = view_infos[i][1])
         bpy.ops.transform.rotate(value = view_infos[i][2], 
                                  axis = view_infos[i][3])
@@ -227,7 +262,27 @@ def test():
                              axis = view_info[3])
     bpy.context.selected_objects[0].name = "view_n"
     
+def test_rotation():
+    versor = random_3D_unit_vector()
+    print("versor: ", versor[0], versor[1], versor[2])
+    distance = 1.0
+    vector = [x * distance for x in versor]
+    print("vector: ", vector[0], vector[1], vector[2])
+    bpy.ops.mesh.primitive_cube_add(radius=0.05, location=(vector[0], vector[1], vector[2]))
     
+    for i in range(30):
+        vector_i = random_rotation_vector(vector, math.radians(20.0))
+        bpy.ops.mesh.primitive_uv_sphere_add(size=0.05, location=(vector_i[0], vector_i[1], vector_i[2]))
+
+    for i in range(80):
+        vector_i = random_rotation_vector(vector, math.radians(45.0))
+        bpy.ops.mesh.primitive_uv_sphere_add(size=0.05, location=(vector_i[0], vector_i[1], vector_i[2]))
+
+    for i in range(120):
+        vector_i = random_rotation_vector(vector, math.radians(90.0))
+        bpy.ops.mesh.primitive_uv_sphere_add(size=0.05, location=(vector_i[0], vector_i[1], vector_i[2]))
+
+
 reset_blend()
 
 bpy.ops.object.lamp_add(type='POINT', view_align=False, location=(1, 1, 1))
@@ -238,15 +293,17 @@ bpy.ops.object.select_all(action='DESELECT')
 
 #Test script that generate a single view of the object
 #test()
+#test_rotation()
 
 object_position = [0.0, 0.0, 0.0]
 camera_distance_from_object = 0.5
-random_view_N = 2
+angle_between_cameras = math.radians(90.0)
+random_view_N = 20
 pc_resolution = 300
 ground_truth_leaf_size = 0.003
 
-X_Y_angle_limits = []#[0,np.pi/2]
-Z_angle_limits = [] #[np.pi, np.pi/2+0.4 , np.pi/2-0.4, 0]
+#X_Y_angle_limits = []#[0,np.pi/2]
+#Z_angle_limits = [] #[np.pi, np.pi/2+0.4 , np.pi/2-0.4, 0]
 
 pcd_file_prefix = "/tmp/scan_"
 obj_file = "/home/luca/CADs/soda_cans/330_can.obj"
@@ -257,7 +314,7 @@ import_object(object_position, obj_file, object_name)
 ground_truth_obj_file = pcd_file_prefix + "gt.obj"
 export_scene(ground_truth_obj_file)
 
-views_info = loop(camera_distance_from_object, random_view_N, pc_resolution, pcd_file_prefix)
+views_info = loop(camera_distance_from_object, angle_between_cameras, random_view_N, pc_resolution, pcd_file_prefix)
 visualize_view_infos(views_info, random_view_N)
 
 ground_truth_pcd_file = pcd_file_prefix + "gt.pcd"
@@ -273,16 +330,14 @@ with open('/tmp/read_me.txt', 'w') as f:
     f.write("]\n") 
     
     f.write("camera_distance_from_object: %s \n" % camera_distance_from_object)
+
+    f.write("N_camera_per_view: 2\n")
+
+    f.write("angle_between_cameras: %s \n" % angle_between_cameras)
+       
+    f.write("X_Y_angle_limits: [" + str(-math.pi) + " " + str(math.pi) + "]\n")
     
-    f.write("X_Y_angle_limits: [")
-    for item in X_Y_angle_limits:
-        f.write("%s " % item)
-    f.write("]\n")
-    
-    f.write("Z_angle_limits: [")    
-    for item in Z_angle_limits:
-        f.write("%s " % item)
-    f.write("]\n")
+    f.write("Z_angle_limits: [" + str(-math.pi) + " " + str(math.pi) + "]\n")
     
     f.write("views_resolution: %s \n" % pc_resolution)
 
@@ -292,3 +347,6 @@ with open('/tmp/read_me.txt', 'w') as f:
 
 # to inspect the pointclouds:
 # pcl_viewer scan_gt.pcd -use_point_picking
+
+# to fuse the views:
+# python two_capera_pcd_fusion.py /tmp/scan_ N
