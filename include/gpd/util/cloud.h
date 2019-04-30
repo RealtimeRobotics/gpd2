@@ -245,8 +245,9 @@ class Cloud {
    * \brief Calculate surface normals for the point cloud.
    * \param[in] num_threads the number of CPU threads to be used in the
    * calculation
+   * \param[in] radius_search the radius value for the normal search
    */
-  void calculateNormals(int num_threads);
+  void calculateNormals(int num_threads, double radius_search);
 
   /**
    * \brief Calculate surface normals for an organized point cloud.
@@ -257,11 +258,12 @@ class Cloud {
    * \brief Calculate surface normals for an unorganized point cloud.
    * \param[in] num_threads the number of CPU threads to be used in the
    * calculation
+   * \param[in] radius_search the radius value for the normal search
    */
-  void calculateNormalsOMP(int num_threads);
+  void calculateNormalsOMP(int num_threads, double radius_search);
 
 #if defined(USE_PCL_GPU)
-  void calculateNormalsGPU();
+  void calculateNormalsGPU(double radius_search);
 #endif
 
   /**

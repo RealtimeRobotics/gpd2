@@ -415,13 +415,13 @@ void Cloud::writeNormalsToFile(const std::string &filename,
   myfile.close();
 }
 
-void Cloud::calculateNormals(int num_threads) {
+void Cloud::calculateNormals(int num_threads, double radius_search) {
   double t_gpu = omp_get_wtime();
   printf("Calculating surface normals ...\n");
   std::string mode;
 
 #if defined(USE_PCL_GPU)
-  calculateNormalsGPU();
+  calculateNormalsGPU(radius_search);
   mode = "gpu";
 #else
   if (cloud_processed_->isOrganized()) {
@@ -429,7 +429,7 @@ void Cloud::calculateNormals(int num_threads) {
     mode = "integral images";
   } else {
     printf("num_threads: %d\n", num_threads);
-    calculateNormalsOMP(num_threads);
+    calculateNormalsOMP(num_threads, radius_search);
     mode = "OpenMP";
   }
 #endif
@@ -461,7 +461,7 @@ void Cloud::calculateNormalsOrganized() {
   normals_ = cloud_normals->getMatrixXfMap().cast<double>();
 }
 
-void Cloud::calculateNormalsOMP(int num_threads) {
+void Cloud::calculateNormalsOMP(int num_threads,  double radius_search) {
   std::vector<std::vector<int>> indices = convertCameraSourceMatrixToLists();
 
   // Calculate surface normals for each view point.
@@ -472,7 +472,7 @@ void Cloud::calculateNormalsOMP(int num_threads) {
       new pcl::search::KdTree<pcl::PointXYZRGBA>);
   estimator.setInputCloud(cloud_processed_);
   estimator.setSearchMethod(tree_ptr);
-  estimator.setRadiusSearch(0.03);
+  estimator.setRadiusSearch(radius_search);
   pcl::IndicesPtr indices_ptr(new std::vector<int>);
 
   for (int i = 0; i < view_points_.cols(); i++) {
@@ -502,7 +502,7 @@ void Cloud::calculateNormalsOMP(int num_threads) {
 }
 
 #if defined(USE_PCL_GPU)
-void Cloud::calculateNormalsGPU() {
+void Cloud::calculateNormalsGPU(double radius_search) {
   std::vector<std::vector<int>> indices = convertCameraSourceMatrixToLists();
 
   PointCloudXYZ::Ptr cloud_xyz(new PointCloudXYZ);
@@ -513,7 +513,7 @@ void Cloud::calculateNormalsGPU() {
   pcl::gpu::NormalEstimation ne;
   ne.setInputCloud(cloud_device);
   // ne.setRadiusSearch(0.03, 1000);
-  ne.setRadiusSearch(0.03, 2000);
+  ne.setRadiusSearch(radius_search, 2000);
   // ne.setRadiusSearch(0.03, 4000);
   // ne.setRadiusSearch(0.03, 8000);
   pcl::gpu::Feature::Indices indices_device;

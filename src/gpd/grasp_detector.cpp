@@ -57,6 +57,8 @@ GraspDetector::GraspDetector(const std::string &config_filename) {
       config_file.getValueOfKey<bool>("voxelize", true);
   generator_params.voxel_size_ =
       config_file.getValueOfKey<double>("voxel_size", 0.003);
+  generator_params.normal_radius_search_ =
+      config_file.getValueOfKey<double>("normal_radius_search", 0.03);
   generator_params.camera_inside_the_object_ =
       config_file.getValueOfKey<bool>("camera_inside_the_object", false);
   generator_params.workspace_ =
@@ -101,6 +103,7 @@ GraspDetector::GraspDetector(const std::string &config_filename) {
          generator_params.sample_above_plane_ ? "true" : "false");
   printf("camera_inside_the_object: %s\n",
          generator_params.camera_inside_the_object_ ? "true" : "false");
+  printf("normal_radius_search: %.3f\n", generator_params.normal_radius_search_);
   printf("==============================================\n");
 
   printf("============ CANDIDATE GENERATION ============\n");

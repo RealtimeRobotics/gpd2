@@ -99,6 +99,7 @@ int DoMain(int argc, char *argv[]) {
   generator_params.workspace_[3] = 1.0;
   generator_params.workspace_[4] = -1.0;
   generator_params.workspace_[5] = 1.0;
+  generator_params.normal_radius_search_ = 0.03;
 
   // Image parameters
   descriptor::ImageGeometry image_geom;
@@ -112,7 +113,7 @@ int DoMain(int argc, char *argv[]) {
   }
 
   // Calculate surface normals.
-  cloud.calculateNormals(4);
+  cloud.calculateNormals(4,generator_params.normal_radius_search_);
   cloud.setNormals(cloud.getNormals() * (-1.0));
 
   // Plot the normals.

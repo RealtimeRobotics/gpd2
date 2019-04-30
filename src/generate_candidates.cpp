@@ -60,6 +60,8 @@ int DoMain(int argc, char *argv[]) {
   std::cout << "hand_height: " << hand_geom.height_ << "\n";
   std::cout << "init_bite: " << hand_geom.init_bite_ << "\n";
 
+  double normal_radius_search = config_file.getValueOfKey<double>("normal_radius_search", 0.03);
+
   bool voxelize = config_file.getValueOfKey<bool>("voxelize", true);
   bool remove_outliers =
       config_file.getValueOfKey<bool>("remove_outliers", false);
@@ -105,6 +107,7 @@ int DoMain(int argc, char *argv[]) {
   generator_params.remove_statistical_outliers_ = remove_outliers;
   generator_params.voxelize_ = voxelize;
   generator_params.workspace_ = workspace;
+  generator_params.normal_radius_search_ = normal_radius_search;
   candidate::HandSearch::Parameters hand_search_params;
   hand_search_params.hand_geometry_ = hand_geom;
   hand_search_params.nn_radius_frames_ = nn_radius;

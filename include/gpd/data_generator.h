@@ -182,6 +182,7 @@ class DataGenerator {
   bool plot_grasps_;
   bool voxelize_;
   double voxel_size_;
+  double normal_radius_search_;
   std::vector<int> test_views_;
   std::vector<int> all_cam_sources_;
 

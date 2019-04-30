@@ -16,7 +16,7 @@ const std::string DataGenerator::IMAGES_DS_NAME = "images";
 const std::string DataGenerator::LABELS_DS_NAME = "labels";
 
 DataGenerator::DataGenerator(const std::string &config_filename)
-    : chunk_size_(5000) {
+    : chunk_size_(10000) {
   detector_ = std::make_unique<GraspDetector>(config_filename);
 
   // Read parameters from configuration file.
@@ -40,6 +40,7 @@ DataGenerator::DataGenerator(const std::string &config_filename)
   plot_grasps_ = config_file.getValueOfKey<bool>("plot_grasps", false);
   voxelize_ = config_file.getValueOfKey<bool>("voxelize_view", true);
   voxel_size_ = config_file.getValueOfKey<double>("voxel_view_size", 0.003);
+  normal_radius_search_ = config_file.getValueOfKey<double>("normal_radius_search", 0.03);
 
   std::cout << "============ DATA ============================\n";
   std::cout << "data_root: " << data_root_ << "\n";
@@ -56,6 +57,7 @@ DataGenerator::DataGenerator(const std::string &config_filename)
   std::cout << "plot_grasps: " << (plot_grasps_ ? "true" : "false") << "\n";
   std::cout << "voxelize_view: " << (voxelize_ ? "true" : "false") << "\n";
   std::cout << "voxel_view_size: " << voxel_size_ << "\n";
+  std::cout << "normal_radius_search: " << normal_radius_search_ << "\n";
   std::cout << "==============================================\n";
 
   //  Eigen::VectorXi cam_sources = Eigen::VectorXi::LinSpaced((360 / 3), 0, 360);
@@ -99,7 +101,7 @@ void DataGenerator::generateDataBigbird() {
     // Load mesh for ground truth.
     std::string prefix = data_root_ + objects[i];
     util::Cloud mesh = loadMesh(prefix + "_gt.pcd", prefix + "_gt_normals.csv");
-    mesh.calculateNormalsOMP(num_threads_);
+    mesh.calculateNormalsOMP(num_threads_, normal_radius_search_);
 
     for (int j = 0; j < num_views_per_object_; j++) {
       printf("===> Processing view %d/%d\n", j + 1, num_views_per_object_);
@@ -111,7 +113,7 @@ void DataGenerator::generateDataBigbird() {
           prefix + "_" + boost::lexical_cast<std::string>(j + 1) + ".pcd",
           view_points);
       cloud.voxelizeCloud(VOXEL_SIZE);
-      cloud.calculateNormalsOMP(num_threads_);
+      cloud.calculateNormalsOMP(num_threads_, normal_radius_search_);
       cloud.subsample(num_samples_);
 
       // 2. Find grasps in point cloud.
@@ -254,7 +256,7 @@ void DataGenerator::generateData() {
     util::Cloud mesh = loadMesh(prefix + "_gt.pcd", prefix + "_gt_normals.csv");
 
     //Calculate Normals
-    mesh.calculateNormalsOMP(num_threads_);
+    mesh.calculateNormalsOMP(num_threads_, normal_radius_search_);
     mesh.setNormals(mesh.getNormals() * (-1.0));
 
     for (int j = 0; j < num_views_per_object_; j++) {
@@ -286,7 +288,7 @@ void DataGenerator::generateData() {
       }
 
       //Calculate Normals
-      cloud.calculateNormalsOMP(num_threads_);
+      cloud.calculateNormalsOMP(num_threads_, normal_radius_search_);
       cloud.setNormals(cloud.getNormals() * (-1.0));
 
       while (positives_view.size() < min_grasps_per_view_) {

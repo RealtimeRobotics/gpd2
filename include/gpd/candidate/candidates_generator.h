@@ -72,6 +72,7 @@ class CandidatesGenerator {
     bool sample_above_plane_;  ///< if samples are drawn above the support plane
     bool voxelize_;            ///< if the point cloud gets voxelized
     double voxel_size_;        ///< voxel size
+    double normal_radius_search_; ///< the radius value for the normal search
     bool camera_inside_the_object_; ///< if true, the normals are computed differently
     int num_samples_;  ///< the number of samples to be used in the search
     int num_threads_;  ///< the number of CPU threads to be used in the search

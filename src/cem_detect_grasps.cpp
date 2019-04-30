@@ -72,10 +72,12 @@ int DoMain(int argc, char *argv[]) {
   printf("num_threads: %d\n", num_threads);
   printf("sample_above_plane: %d\n", sample_above_plane);
 
+  double normal_radius_search = config_file.getValueOfKey<double>("normal_radius_search", 0.03);
+
   // Preprocess the point cloud.
   cloud.filterWorkspace(workspace);
   cloud.voxelizeCloud(VOXEL_SIZE);
-  cloud.calculateNormals(num_threads);
+  cloud.calculateNormals(num_threads, normal_radius_search);
   if (sample_above_plane) {
     cloud.sampleAbovePlane();
   }

@@ -22,11 +22,11 @@ void CandidatesGenerator::preprocessPointCloud(util::Cloud &cloud) {
 
   if (params_.camera_inside_the_object_)
   {
-    cloud.calculateNormalsOMP(params_.num_threads_);
+    cloud.calculateNormalsOMP(params_.num_threads_, params_.normal_radius_search_);
     cloud.setNormals(cloud.getNormals() * (-1.0));
   }
   else
-    cloud.calculateNormals(params_.num_threads_);
+    cloud.calculateNormals(params_.num_threads_, params_.normal_radius_search_);
 
   if (params_.sample_above_plane_) {
     cloud.sampleAbovePlane();

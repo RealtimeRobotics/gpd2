@@ -1,9 +1,9 @@
 ---
 constrains: 
-  constrain_names: [top_grasp, bottom_grasp]
+  constrain_names: []#, bottom_grasp]
   top_grasp:
     approach_limits: [-1.0, 1.0, -1.0, 1.0, -1.0, -0.97]
-    position_limits: [-10.0, 10.0, -10.0, 10.0, 0.0, 10.0]
+    position_limits: [-10.0, 10.0, -0.01, 0.1, 0.0, 10.0]
   bottom_grasp:
     approach_limits: [-1.0, 1.0, -1.0, 1.0, 0.97, 1.0]
     position_limits: [-10.0, 10.0, -10.0, 10.0, -10.0, 0.0]
