@@ -84,12 +84,12 @@ GraspDetector::GraspDetector(const std::string &config_filename) {
       config_file.getValueOfKey<double>("friction_coeff", 20.0);
   hand_search_params.min_viable_ =
       config_file.getValueOfKey<int>("min_viable", 6);
-  hand_search_params.filter_approach_direction_ =
+  filter_approach_direction_ =
       config_file.getValueOfKey<bool>("filter_approach_direction", false);
   std::vector<double> approach =
       config_file.getValueOfKeyAsStdVectorDouble("direction", "1 0 0");
-  hand_search_params.direction_ << approach[0], approach[1], approach[2];
-  hand_search_params.thresh_rad_ = config_file.getValueOfKey<double>("thresh_rad", 2.3);
+  direction_ << approach[0], approach[1], approach[2];
+  thresh_rad_ = config_file.getValueOfKey<double>("thresh_rad", 2.3);
   hand_search_params.hand_constrain_filename_ = config_file.getValueOfKeyAsString("hand_constrain_filename", "");
   candidates_generator_ = std::make_unique<candidate::CandidatesGenerator>(
       generator_params, hand_search_params);
@@ -244,10 +244,21 @@ std::vector<std::unique_ptr<candidate::Hand>> GraspDetector::detectGrasps(
     plotter_->plotFingers3D(hand_set_list_filtered, cloud.getCloudOriginal(),
                             "Filtered Grasps (Aperture, Workspace)", hand_geom);
   }
-  double t_filter = omp_get_wtime() - t0_filter;
   if (hand_set_list_filtered.size() == 0) {
     return hands_out;
   }
+  if (filter_approach_direction_) {
+      hand_set_list_filtered =
+          filterGraspsDirection(hand_set_list_filtered, direction_, thresh_rad_);
+      if (plot_filtered_candidates_) {
+        plotter_->plotFingers3D(hand_set_list_filtered, cloud.getCloudOriginal(),
+                                "Filtered Grasps (Approach)", hand_geom);
+      }
+    }
+    double t_filter = omp_get_wtime() - t0_filter;
+    if (hand_set_list_filtered.size() == 0) {
+      return hands_out;
+    }
 
   // 3. Create grasp descriptors (images).
   double t0_images = omp_get_wtime();

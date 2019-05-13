@@ -218,6 +218,10 @@ class GraspDetector {
   std::vector<double> workspace_grasps_;  ///< the workspace of the robot with
                                           /// respect to hand poses
 
+  bool filter_approach_direction_;
+  Eigen::Vector3d direction_;
+  double thresh_rad_;
+
   // selection parameters
   int num_selected_;  ///< the number of selected grasps
 };
