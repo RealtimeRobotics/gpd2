@@ -1,5 +1,9 @@
 #include <gpd/descriptor/image_12_channels_strategy.h>
 
+// obscure_channel=-1 the 12 channels of the images are all untouched
+// obscure_channel=n [n, 4 + n, 9 + n] channels are oscured
+#define obscure_channel 2
+
 namespace gpd {
 namespace descriptor {
 
@@ -49,9 +53,16 @@ cv::Mat Image12ChannelsStrategy::calculateImage(
           .swap(points_proj.row(swap_indices[i][1]));
     }
 
+    cv::Mat empty_image(image_params_.size_, image_params_.size_,CV_8U,cv::Scalar(0.0));
+
     std::vector<cv::Mat> channels_i = calculateChannels(points_proj, normals);
     for (size_t j = 0; j < channels_i.size(); j++) {
-      channels[i * 4 + j] = channels_i[j];
+    if (j==obscure_channel)
+      {
+        channels[i * 4 + j] = empty_image;
+      }
+      else
+        channels[i * 4 + j] = channels_i[j];
     }
   }
 
