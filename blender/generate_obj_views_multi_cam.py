@@ -187,8 +187,8 @@ def import_object(object_position, obj_file, obj_name = "Mesh"):
 
 def export_scene(file_name):
     bpy.ops.export_scene.obj(filepath=file_name, 
-                             check_existing=True, 
-                             axis_forward='X', 
+                             check_existing=True,
+                             axis_forward='Y', 
                              axis_up='Z')
 
 
@@ -214,6 +214,16 @@ def loop(camera_distance_from_object, angle_between_cameras, random_view_N, pc_r
         curr_view_1_info = generate_view(cam1_position, pc_resolution, pcd1_file)
         curr_view_2_info = generate_view(cam2_position, pc_resolution, pcd2_file)
         
+        #CLEANING FILES
+        pcd1_file_rename = pcd_file_prefix + str(i+1) + "a00000.pcd"
+        pcd2_file_rename = pcd_file_prefix + str(i+1) + "b00000.pcd"
+        os.rename(pcd1_file_rename, pcd1_file)
+        os.rename(pcd2_file_rename, pcd2_file) 
+        pcd1_file_remove = pcd_file_prefix + str(i+1) + "a_noisy00000.pcd"
+        pcd2_file_remove = pcd_file_prefix + str(i+1) + "b_noisy00000.pcd" 
+        os.remove(pcd1_file_remove)
+        os.remove(pcd2_file_remove)      
+              
         generatere_cfg_file(curr_view_1_info)
         generatere_cfg_file(curr_view_2_info)
         
@@ -298,7 +308,7 @@ bpy.ops.object.select_all(action='DESELECT')
 object_position = [0.0, 0.0, 0.0]
 camera_distance_from_object = 0.5
 angle_between_cameras = math.radians(90.0)
-random_view_N = 20
+random_view_N = 40
 pc_resolution = 300
 ground_truth_leaf_size = 0.003
 
@@ -306,8 +316,8 @@ ground_truth_leaf_size = 0.003
 #Z_angle_limits = [] #[np.pi, np.pi/2+0.4 , np.pi/2-0.4, 0]
 
 pcd_file_prefix = "/tmp/scan_"
-obj_file = "/home/luca/CADs/soda_cans/330_can.obj"
-#obj_file = "/home/luca/CADs/sockets/7174K640/7174K640_SOCKET.stl"
+#obj_file = "/home/luca/CADs/soda_cans/330_can.obj"
+obj_file = "/home/luca/CADs/sockets/7174K640/7174K640_SOCKET.stl"
 
 object_name = "Mesh"
 import_object(object_position, obj_file, object_name)
