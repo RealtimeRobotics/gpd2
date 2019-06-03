@@ -485,6 +485,9 @@ bool GraspDetector::createGraspImages(
     plotter_->plotNormals(cloud);
   }
 
+  const candidate::HandGeometry &hand_geom =
+      candidates_generator_->getHandSearchParams().hand_geometry_;
+
   // 1. Generate grasp candidates.
   std::vector<std::unique_ptr<candidate::HandSet>> hand_set_list =
       candidates_generator_->generateGraspCandidateSets(cloud);
@@ -494,9 +497,10 @@ bool GraspDetector::createGraspImages(
     images_out.resize(0);
     return false;
   }
-
-  const candidate::HandGeometry &hand_geom =
-      candidates_generator_->getHandSearchParams().hand_geometry_;
+if (plot_candidates_) {
+    plotter_->plotFingers3D(hand_set_list, cloud.getCloudOriginal(),
+                            "Candidate Grasps", hand_geom);
+  }
 
   // 2. Filter the candidates.
   std::vector<std::unique_ptr<candidate::HandSet>> hand_set_list_filtered =

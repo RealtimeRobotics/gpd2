@@ -256,8 +256,8 @@ void HandSet::modifyCandidate(Hand &hand, const Eigen::Vector3d &sample,
   util::PointList point_list_learning = point_list.slice(indices_learning);
 
   // Calculate grasp width (hand opening width).
-  double width = point_list_learning.getPoints().row(0).maxCoeff() -
-                 point_list_learning.getPoints().row(0).minCoeff();
+  double width = point_list_learning.getPoints().row(1).maxCoeff() -
+                 point_list_learning.getPoints().row(1).minCoeff();
 
   // Modify the grasp.
   hand.construct(finger_hand);
