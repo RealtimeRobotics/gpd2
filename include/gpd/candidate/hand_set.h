@@ -233,12 +233,6 @@ class HandSet {
    * placements
    * \return the grasp
    */
-  Hand createHypothesis(const Eigen::Vector3d &sample,
-                        const util::PointList &point_list,
-                        const std::vector<int> &indices_learning,
-                        const Eigen::Matrix3d &hand_frame,
-                        const FingerHand &finger_hand) const;
-
   void modifyCandidate(Hand &hand, const Eigen::Vector3d &sample,
                        const util::PointList &point_list,
                        const std::vector<int> &indices_learning,

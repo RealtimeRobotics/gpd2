@@ -56,7 +56,7 @@ class Clustering {
    * \param min_inliers the minimum number of grasps a cluster is required to
    * contain
    */
-  Clustering(int min_inliers) : min_inliers_(min_inliers){};
+  Clustering(int min_inliers, double max_dist_thresh) : min_inliers_(min_inliers), max_dist_thresh_(max_dist_thresh){};
 
   /**
    * \brief Search for clusters given a list of grasps.
@@ -83,6 +83,7 @@ class Clustering {
  private:
   int min_inliers_;  ///< minimum number of geometrically aligned candidates
                      /// required to form a cluster
+  double max_dist_thresh_;
 };
 
 }  // namespace gpd

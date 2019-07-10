@@ -267,27 +267,6 @@ void HandSet::modifyCandidate(Hand &hand, const Eigen::Vector3d &sample,
   labelHypothesis(point_list_learning, finger_hand, hand);
 }
 
-Hand HandSet::createHypothesis(const Eigen::Vector3d &sample,
-                               const util::PointList &point_list,
-                               const std::vector<int> &indices_learning,
-                               const Eigen::Matrix3d &hand_frame,
-                               const FingerHand &finger_hand) const {
-  // Extract data for classification.
-  util::PointList point_list_learning = point_list.slice(indices_learning);
-
-  // Calculate grasp width (hand opening width).
-  double width = point_list_learning.getPoints().row(0).maxCoeff() -
-                 point_list_learning.getPoints().row(0).minCoeff();
-
-  // Create the grasp.
-  Hand hand(sample, hand_frame, finger_hand, width);
-
-  // Evaluate if the grasp is antipodal.
-  labelHypothesis(point_list_learning, finger_hand, hand);
-
-  return hand;
-}
-
 void HandSet::labelHypothesis(const util::PointList &point_list,
                               const FingerHand &finger_hand, Hand &hand) const {
   int label =

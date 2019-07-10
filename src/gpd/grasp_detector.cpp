@@ -175,10 +175,12 @@ GraspDetector::GraspDetector(const std::string &config_filename) {
 
   // Read clustering parameters.
   int min_inliers = config_file.getValueOfKey<int>("min_inliers", 1);
-  clustering_ = std::make_unique<Clustering>(min_inliers);
+  double max_dist_thresh = config_file.getValueOfKey<double>("max_dist_thresh", 0.05);
+  clustering_ = std::make_unique<Clustering>(min_inliers, max_dist_thresh);
   cluster_grasps_ = min_inliers > 0 ? true : false;
   printf("============ CLUSTERING ======================\n");
   printf("min_inliers: %d\n", min_inliers);
+  printf("max_dist_thresh: %.3f\n", max_dist_thresh);
   printf("==============================================\n\n");
 
   // Read grasp selection parameters.
@@ -251,6 +253,7 @@ std::vector<std::unique_ptr<candidate::Hand>> GraspDetector::detectGrasps(
       hand_set_list_filtered =
           filterGraspsDirection(hand_set_list_filtered, direction_, thresh_rad_);
       if (plot_filtered_candidates_) {
+	printf("11111111111111111111111111\n");
         plotter_->plotFingers3D(hand_set_list_filtered, cloud.getCloudOriginal(),
                                 "Filtered Grasps (Approach)", hand_geom);
       }

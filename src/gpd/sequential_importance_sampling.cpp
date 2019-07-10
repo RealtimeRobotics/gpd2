@@ -46,7 +46,12 @@ SequentialImportanceSampling::SequentialImportanceSampling(
   grasp_detector_ = std::make_unique<GraspDetector>(config_filename);
 
   int min_inliers = config_file.getValueOfKey<int>("min_inliers", 1);
-  clustering_ = std::make_unique<Clustering>(min_inliers);
+  double max_dist_thresh = config_file.getValueOfKey<double>("max_dist_thresh", 0.05);
+  clustering_ = std::make_unique<Clustering>(min_inliers, max_dist_thresh);
+  printf("============ CLUSTERING ======================\n");
+  printf("min_inliers: %d\n", min_inliers);
+  printf("max_dist_thresh: %.3f\n", max_dist_thresh);
+  printf("==============================================\n\n");
 }
 
 std::vector<std::unique_ptr<candidate::Hand>>

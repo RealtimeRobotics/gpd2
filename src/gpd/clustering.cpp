@@ -8,8 +8,7 @@ std::vector<std::unique_ptr<candidate::Hand>> Clustering::findClusters(
   // const double AXIS_ALIGN_ANGLE_THRESH = 15.0 * M_PI/180.0;
   const double AXIS_ALIGN_ANGLE_THRESH = 12.0 * M_PI / 180.0;
   const double AXIS_ALIGN_DIST_THRESH = 0.005;
-  // const double MAX_DIST_THRESH = 0.07;
-  const double MAX_DIST_THRESH = 0.05;
+  // const double max_dist_thresh_ = 0.07;
   //  const int max_inliers = 50;
 
   std::vector<std::unique_ptr<candidate::Hand>> hands_out;
@@ -41,11 +40,11 @@ std::vector<std::unique_ptr<candidate::Hand>> Clustering::findClusters(
       bool axis_aligned_binary =
           fabs(axis_aligned) > cos(AXIS_ALIGN_ANGLE_THRESH);
 
-      // Which hands are within <MAX_DIST_THRESH> of this one?
+      // Which hands are within <max_dist_thresh_> of this one?
       Eigen::Vector3d delta_pos =
           hand_list[i]->getPosition() - hand_list[j]->getPosition();
       double delta_pos_mag = delta_pos.norm();
-      bool delta_pos_mag_binary = delta_pos_mag <= MAX_DIST_THRESH;
+      bool delta_pos_mag_binary = delta_pos_mag <= max_dist_thresh_;
 
       // Which hands are within <AXIS_ALIGN_DIST_THRESH> of this one when
       // projected onto the plane orthognal to this
